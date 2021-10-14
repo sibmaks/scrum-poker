@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scrum Poker</title>
+    <link th:href="@{/libs/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/libs/fontawesome/css/all.min.css}" rel="stylesheet">
+    <link th:href="@{/css/app.css}" rel="stylesheet">
+    <script th:src="@{/libs/js/jquery.min.js}"></script>
+    <script th:src="@{/js/core.js}" lang="js"></script>
+</head>
+<body>
+<div class="button-navbar">
+    <button class="btn-sm btn-primary rounded-circle" onclick="window.location.replace('/account');"><i class="fas fa-user-alt"></i></button>
+    <button class="btn-sm btn-primary rounded-circle" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
+</div>
+<div class="container-fluid vh-100" style="margin-top:300px">
+    <div class="" style="margin-top:200px">
+        <div class="rounded d-flex justify-content-center">
+            <div class="col-md-4 col-sm-12 shadow-lg p-5 bg-light">
+                <div class="text-center">
+                    <h3 class="text-primary">Rooms</h3>
+                </div>
+                <div class="rooms-list">
+                    <div class="list-group">
+                        <a th:each="room : ${rooms}"
+                           th:href="@{/room/} + ${room.id}" class="list-group-item list-group-item-action" aria-current="true">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1" th:text="${room.name}"></h5>
+                                <small>
+                                    <span th:if="${room.voting}" class="badge bg-primary rounded-pill" th:text="${room.participants}"></span>
+                                    <span th:if="${!room.voting}" class="badge bg-secondary rounded-pill" th:text="${room.participants}"></span>
+                                </small>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <a th:href="@{/room/create}" class="btn btn-primary">Create</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

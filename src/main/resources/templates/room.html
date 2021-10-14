@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scrum Poker</title>
+    <link th:href="@{/libs/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/libs/css/window-engine.min.css}" rel="stylesheet">
+    <link th:href="@{/libs/fontawesome/css/all.min.css}" rel="stylesheet">
+    <link th:href="@{/css/app.css}" rel="stylesheet">
+    <script th:src="@{/libs/js/angular.min.js}"></script>
+    <script th:src="@{/libs/js/jquery.min.js}"></script>
+    <script th:src="@{/libs/js/clipboard.min.js}"></script>
+    <script th:src="@{/js/core.js}" lang="js"></script>
+    <script th:src="@{/js/room-ng.js}"></script>
+    <script th:inline="javascript">
+        const roomInfo = /*[[${roomInfo}]]*/ {};
+        const secretCode = /*[[${secretCode}]]*/ {};
+    </script>
+</head>
+<body style="overflow-y: hidden">
+<div class="button-navbar">
+    <button class="btn-sm btn-primary rounded-circle" onclick="window.location.replace('/account');"><i class="fas fa-user-alt"></i></button>
+    <button class="btn-sm btn-primary rounded-circle" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
+</div>
+<div class="container-fluid vh-100" style="margin-top:300px">
+    <div class="" style="margin-top:200px">
+        <div class="rounded d-flex justify-content-center" ng-app="pokerApp" ng-controller="RoomController">
+            <div class="col-md-4 col-sm-12 shadow-lg p-5 bg-light">
+                <a style="float: left" class="btn btn-outline-secondary" th:href="@{/rooms}">&lt;</a>
+                <div class="text-center" style="margin-bottom: 16px">
+                    <h3 class="text-primary">Room: {{roomInfo.name}}</h3>
+                </div>
+                <div class="action-btn-container text-center" th:if="${roomInfo.author}">
+                    <button th:if="${secretCode != null && secretCode != ''}" id="clipboard-secret-btn"
+                            type="button" class="btn btn-outline-primary action-btn"
+                            data-clipboard-action="copy"
+                            th:data-clipboard-text="${secretCode}">Copy secret</button>
+                    <button ng-if="roomInfo.voting" type="button" class="btn btn-m8 btn-outline-primary action-btn"
+                            ng-click="setVoting()">Show cards</button>
+                    <button ng-if="!roomInfo.voting" type="button" class="btn btn-m8 btn-primary action-btn"
+                            ng-click="setVoting()">Start new voting</button>
+                </div>
+                <div ng-if="roomInfo.voting" id="room-info" class="text-center">
+                    <button ng-repeat="score in scores" ng-class="isUserScore(score) ? 'btn-primary' : 'btn-outline-primary'"
+                            type="button" class="btn score-btn" ng-click="vote(score)">{{score}}</button>
+                </div>
+                <div id="room-participant" class="text-center">
+                    <ul ng-repeat="groupInfo in roomInfo.groupInfos" ng-if="anyVoted(groupInfo)" class="list-group part-groups">
+                        <li style="font-weight: bold"
+                            ng-if="roomInfo.groupInfos.length > 1"
+                            class="text-center list-group-item d-flex justify-content-between align-items-center">
+                            {{groupInfo.name}}
+                        </li>
+                        <li ng-repeat="participantInfo in groupInfo.participantInfos"
+                            ng-if="participantInfo.voted"
+                            class="list-group-item d-flex justify-content-between align-items-center">
+                            {{participantInfo.name}}
+                            <span class="badge bg-primary rounded-pill">{{participantInfo.score == null ? '...' : participantInfo.score}}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="windowGroup">
+        <div id="window1" class="window">
+            <div class="purple">
+                <p class="windowTitle">Tetris</p>
+            </div>
+            <div class="mainWindow">
+                <canvas style="background-color: black" width="320" height="640" id="game"></canvas>
+            </div>
+        </div>
+    </div>
+    <button id="button1" style="visibility: hidden"></button>
+    <script th:src="@{/js/tet.js}"></script>
+    <script th:src="@{/libs/js/window-engine.min.js}"></script>
+    <script>
+        const keys = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65];
+        let offset = 0;
+
+        const clipboardSecretBtn = $('#clipboard-secret-btn');
+        const clipboardJS = new ClipboardJS('#clipboard-secret-btn');
+
+        clipboardJS.on("success", function (e) {
+            clipboardSecretBtn
+                .text('Copied!');
+            setTimeout(function() {
+                clipboardSecretBtn
+                    .text('Copy secret');
+            }, 3000);
+        });
+
+        clipboardJS.on("error", function (e) {
+            clipboardSecretBtn.outerHTML = "<p class='border border-primary rounded'>" + secretCode + "</p>"
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if(keys[offset] === e.keyCode) {
+                offset++;
+                if(offset === keys.length) {
+                    rAF = requestAnimationFrame(loop);
+                    document.getElementById("button1").click();
+                    const gameWindow = document.getElementById("window1");
+                    gameWindow.style.width = '360px';
+                    gameWindow.style.minHeight = '720px';
+                    gameWindow.style.maxHeight = '720px';
+                    offset = 0;
+                }
+            } else {
+                offset = 0;
+            }
+        });
+    </script>
+</div>
+</body>
+</html>

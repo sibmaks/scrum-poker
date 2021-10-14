@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scrum Poker</title>
+    <link th:href="@{/libs/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/libs/fontawesome/css/all.min.css}" rel="stylesheet">
+    <link th:href="@{/css/app.css}" rel="stylesheet">
+    <script th:src="@{/libs/js/angular.min.js}"></script>
+    <script th:src="@{/libs/js/jquery.min.js}"></script>
+    <script th:src="@{/js/core.js}" lang="js"></script>
+    <script th:src="@{/js/reg-ng.js}"></script>
+</head>
+<body>
+<div class="container-fluid vh-100" style="margin-top:300px">
+    <div class="" style="margin-top:200px">
+        <div class="rounded d-flex justify-content-center" ng-app="pokerApp" ng-controller="RegistrationController">
+            <form class="col-md-4 col-sm-12 shadow-lg p-5 bg-light" ng-submit="doRegistration()">
+                <a style="float: left" class="btn btn-outline-secondary" th:href="@{/}">&lt;</a>
+                <div class="text-center" style="margin-bottom: 16px">
+                    <h3 class="text-primary">Registration</h3>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="client-login">Email</label>
+                    <input class="form-control" id="client-login" type="email" ng-class="{'is-invalid': loginInfoField != ''}"
+                           ng-model="login" required/>
+                    <div id="login-info-field" class="invalid-feedback">{{loginInfoField}}</div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="client-password">Password</label>
+                    <input class="form-control" id="client-password" type="password" ng-class="{'is-invalid': passwordInfoField != ''}"
+                           ng-model="password" required/>
+                    <div id="password-info-field" class="invalid-feedback">{{passwordInfoField}}</div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="client-first-name">First name</label>
+                    <input class="form-control" id="client-first-name" type="text" ng-class="{'is-invalid': firstNameInfoField != ''}"
+                           ng-model="firstName" required/>
+                    <div id="firstName-info-field" class="invalid-feedback">{{firstNameInfoField}}</div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="client-last-name">Last name</label>
+                    <input class="form-control" id="client-last-name" type="text" ng-class="{'is-invalid': lastNameInfoField != ''}"
+                           ng-model="lastName" required/>
+                    <div id="lastName-info-field" class="invalid-feedback">{{lastNameInfoField}}</div>
+                </div>
+                <div class="mb-3">
+                    <button id="reg-btn" class="btn btn-primary" type="submit">Register</button>
+                </div>
+                <p id="reg-error-info" class="text-center mt-5" style="color: red">{{regErrorInfo}}</p>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

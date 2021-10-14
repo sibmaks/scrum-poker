@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scrum Poker</title>
+    <link th:href="@{/libs/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/libs/fontawesome/css/all.min.css}" rel="stylesheet">
+    <link th:href="@{/css/app.css}" rel="stylesheet">
+    <script th:src="@{/libs/js/jquery.min.js}"></script>
+    <script th:src="@{/js/core.js}" lang="js"></script>
+    <script th:inline="javascript">
+        const roomId = /*[[${roomId}]]*/ {};
+    </script>
+    <script th:src="@{/js/join.js}"></script>
+</head>
+<body>
+<div class="button-navbar">
+    <button class="btn-sm btn-primary rounded-circle" onclick="window.location.replace('/account');"><i class="fas fa-user-alt"></i></button>
+    <button class="btn-sm btn-primary rounded-circle" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
+</div>
+<div class="container-fluid vh-100" style="margin-top:300px">
+    <div class="" style="margin-top:200px">
+        <div class="rounded d-flex justify-content-center">
+            <div class="col-md-4 col-sm-12 shadow-lg p-5 bg-light">
+                <div class="text-center">
+                    <h3 class="text-primary">Join to room</h3>
+                </div>
+                <div th:if="${roles.size() > 1}" class="mb-3">
+                    <label class="form-label" for="role-select">Choose your role</label>
+                    <div class="input-group">
+                        <select class="form-select" id="role-select" required>
+                            <option th:each="role : ${roles}" th:value="${role.id}" th:text="${role.name}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div th:if="${roles.size() == 1}" class="mb-3">
+                    <input type="hidden" id="role-select" th:value="${roles.get(0).getId()}"/>
+                </div>
+                <div th:if="${hasSecret}" class="mb-3">
+                    <label class="form-label" for="room-secret-code">Room secret code</label>
+                    <input type="text" class="form-control" id="room-secret-code" ng-model="secretCode" required/>
+                </div>
+                <div class="mb-3">
+                    <button id="join-btn" class="btn btn-primary" onclick="doJoin()">Join</button>
+                </div>
+                <p id="join-error-info" class="text-center mt-5" style="color: red">
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

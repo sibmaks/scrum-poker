@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scrum Poker</title>
+    <link th:href="@{/libs/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/libs/fontawesome/css/all.min.css}" rel="stylesheet">
+    <link th:href="@{/css/app.css}" rel="stylesheet">
+    <script th:src="@{/libs/js/angular.min.js}"></script>
+    <script th:src="@{/libs/js/jquery.min.js}"></script>
+    <script th:src="@{/js/core.js}" lang="js"></script>
+    <script th:inline="javascript">
+        const roles = /*[[${roles}]]*/ {};
+    </script>
+    <script th:src="@{/js/create-ng.js}"></script>
+</head>
+<body>
+<div class="button-navbar">
+    <button class="btn-sm btn-primary rounded-circle" onclick="window.location.replace('/account');"><i class="fas fa-user-alt"></i></button>
+    <button class="btn-sm btn-primary rounded-circle" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
+</div>
+<div class="container-fluid vh-100" style="margin-top:300px">
+    <div class="" style="margin-top:200px">
+        <div class="rounded d-flex justify-content-center" ng-app="pokerApp" ng-controller="CreateController">
+            <form class="col-md-4 col-sm-12 shadow-lg p-5 bg-light" ng-submit="doCreate()">
+                <a style="float: left" class="btn btn-outline-secondary" th:href="@{/rooms}">&lt;</a>
+                <div class="text-center" style="margin-bottom: 16px">
+                    <h3 class="text-primary">Create room</h3>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="room-name">Room name</label>
+                    <input class="form-control" id="room-name" type="text" ng-class="{'is-invalid': nameInfoField != ''}"
+                           ng-model="roomName" required/>
+                    <div id="name-info-field" class="invalid-feedback">{{nameInfoField}}</div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="room-name">Room roles</label>
+                    <div class="form-check" ng-repeat="role in roles">
+                        <input class="form-check-input" type="checkbox"
+                               id="role_{{role.id}}"
+                               value="{{role.id}}"
+                               name="selectedRoles[]"
+                               ng-checked="selection.indexOf(role) > -1"
+                               ng-click="toggleSelection(role)">
+                        <label class="form-check-label" for="role_{{role.id}}">{{role.name}}</label>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="role-select">Choose your role</label>
+                    <select class="form-select" id="role-select" ng-model="roleId" required>
+                        <option ng-repeat="role in selection" ng-value="role.id">{{role.name}}</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="room-expired">Expiration days</label>
+                    <input type="number" class="form-select" id="room-expired" ng-model="days" required/>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="room-secret-code">Room secret code</label>
+                    <div class="input-group">
+                        <div class="input-group-text">
+                            <input class="form-check-input mt-0" type="checkbox" value="" ng-model="secretCodeRequired"/>
+                        </div>
+                        <input type="text" class="form-control" id="room-secret-code"
+                               ng-class="{'is-invalid': secretCodeInfoField != ''}"
+                               ng-model="secretCode"
+                               ng-disabled="!(secretCodeRequired)"
+                               ng-required="secretCodeRequired"/>
+                        <div id="secretCode-info-field" class="invalid-feedback">{{secretCodeInfoField}}</div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <button id="create-btn" class="btn btn-primary" type="submit">Create</button>
+                </div>
+                <p id="create-error-info" class="text-center mt-5" style="color: red">{{createErrorInfo}}</p>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

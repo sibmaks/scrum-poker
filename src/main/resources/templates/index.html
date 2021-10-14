@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scrum Poker</title>
+    <link th:href="@{/libs/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/libs/fontawesome/css/all.min.css}" rel="stylesheet">
+    <script th:src="@{/libs/js/jquery.min.js}"></script>
+</head>
+<body>
+<div class="container-fluid vh-100" style="margin-top:300px">
+    <div class="" style="margin-top:200px">
+        <div class="rounded d-flex justify-content-center">
+            <div class="col-md-4 col-sm-12 shadow-lg p-5 bg-light">
+                <div class="text-center">
+                    <h3 class="text-primary">Sign In</h3>
+                </div>
+                <form id="login-form" action="#" onsubmit="return doLogin()">
+                    <div class="p-4">
+                        <div class="input-group mb-3">
+                            <label for="login-form-login" class="input-group-text bg-primary" style="color: white"><i class="far fa-user"></i></label>
+                            <input type="text" class="form-control" placeholder="Login" id="login-form-login" required/>
+                            <div id="login-info-field" class="invalid-feedback"></div>
+                        </div>
+                        <div class="input-group mb-3">
+                            <label for="login-form-password" class="input-group-text bg-primary" style="color: white"><i class="fas fa-key"></i></label>
+                            <input type="password" class="form-control" placeholder="Password" id="login-form-password"
+                                   onkeyup="onKeyUp" required/>
+                            <div id="password-info-field" class="invalid-feedback"></div>
+                        </div>
+                        <div class="mb-3">
+                            <a id="registration-link" th:href="@{/reg}" class="btn btn-outline-primary text-center mt-2">
+                                Registration
+                            </a>
+                            <button id="login-button" class="float-end btn btn-primary text-center mt-2" type="submit">
+                                Login
+                            </button>
+                        </div>
+                        <p id="auth-error-info" class="text-center mt-5" style="color: red">
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script th:src="@{/js/login.js}"></script>
+</body>
+
+</html>

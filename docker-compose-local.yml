@@ -1,0 +1,35 @@
+version: '3.5'
+services:
+  scrum_poker:
+    image: scrum_poker:latest
+    container_name: scrum_poker
+    ports:
+      - "8080:8080"
+    environment:
+      server.port: 8080
+      # -------------------------- Data Source -----------------------------
+      spring.datasource.url: jdbc:postgresql://postgres:5432/scrum_poker
+      spring.datasource.username : postgres
+      spring.datasource.password : a12345
+      spring.jpa.properties.hibernate.default_schema : scrum_poker
+      spring.jpa.properties.hibernate.show_sql : 'true'
+      # -------------------------- Data Source -----------------------------
+
+      # -------------------------- App properties -----------------------------
+      app.session.ttl.type: DAYS
+      app.session.ttl.value: 30
+      # -------------------------- App properties -----------------------------
+
+      spring.flyway.enabled: 'true'
+      spring.flyway.schemas: scrum_poker
+
+      log4j.logger.org.hibernate.SQL: DEBUG
+      log4j.logger.org.hibernate.type: TRACE
+      log4j.logger.com.github.sibmaks.sp.service: DEBUG
+      JAVA_OPTS: -Xmx128m
+    networks:
+      - pg_network
+
+networks:
+  pg_network:
+    external: true

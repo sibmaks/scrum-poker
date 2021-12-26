@@ -13,14 +13,27 @@ For invite your friend or folks just send them room link (and secret code if it 
 
 If your mate is not registered or authorized he has to do it first.
 
+## Application properties
+```properties
+app.session.ttl.type=DAYS
+app.session.ttl.value=30
+```
+
+For `ttl.type` used enum values: `java.time.temporal.ChronoUnit`, for example:
+- DAYS
+- SECONDS
+- MILLIS
+
 ## Life demo
 
 You can see how it works here: http://45.67.230.124/
 
-## Endpoint `/actuator/info`
+## Service endpoint
+
+### Endpoint `/actuator/info`
 Provides arbitrary application info.
 
-## Endpoint `/actuator/health`
+### Endpoint `/actuator/health`
 The health endpoint provides basic application health information. Implementation of this endpoint is custom and
 complies specification.
 

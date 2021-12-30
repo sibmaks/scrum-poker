@@ -10,6 +10,7 @@ import com.github.sibmaks.sp.domain.User;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Participant repository interface
@@ -44,7 +45,7 @@ public interface ParticipantRepository extends JpaRepository<Participant, Partic
      * @param participantId participant identifier
      * @return participant or null
      */
-    Participant findByParticipantId(ParticipantId participantId);
+    Optional<Participant> findByParticipantId(ParticipantId participantId);
 
     /**
      * Reset participant scores in specific room.

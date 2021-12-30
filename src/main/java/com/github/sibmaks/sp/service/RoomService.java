@@ -207,14 +207,12 @@ public class RoomService {
      */
     @Transactional
     public void vote(User user, long roomId, String score) {
+        Room room = roomRepository.findById(roomId).orElseThrow(NotFoundException::new);
         ParticipantId participantId = ParticipantId.builder()
                 .user(user)
-                .room(roomRepository.getOne(roomId))
+                .room(room)
                 .build();
-        Participant participant = participantRepository.findByParticipantId(participantId);
-        if(participant == null) {
-            throw new NotAllowedException();
-        }
+        Participant participant = participantRepository.findByParticipantId(participantId).orElseThrow(NotAllowedException::new);
         if(!participant.getParticipantId().getRoom().isVoting()) {
             throw new NotAllowedException();
         }

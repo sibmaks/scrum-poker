@@ -1,6 +1,6 @@
 package com.github.sibmaks.sp.controller;
 
-import com.github.sibmaks.sp.api.constant.ICommonConstant;
+import com.github.sibmaks.sp.api.constant.CommonConstant;
 import com.github.sibmaks.sp.api.request.*;
 import com.github.sibmaks.sp.api.response.*;
 import com.github.sibmaks.sp.domain.ClientSession;
@@ -44,7 +44,7 @@ public class RoomController {
      * @return response with new room identifier or response with error description
      */
     @PostMapping(value = "createRoom", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public StandardResponse createRoom(@RequestHeader(ICommonConstant.HEADER_SESSION_ID) String sessionId,
+    public StandardResponse createRoom(@RequestHeader(CommonConstant.HEADER_SESSION_ID) String sessionId,
                                        @RequestBody @Validated CreateRoomRequest request) {
         ClientSession session = sessionService.getSession(sessionId);
         User user = userService.getUser(session.getUserId());
@@ -67,7 +67,7 @@ public class RoomController {
      * @return response with identifier of room or response with error description
      */
     @PostMapping(value = "join", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public StandardResponse join(@RequestHeader(ICommonConstant.HEADER_SESSION_ID) String sessionId,
+    public StandardResponse join(@RequestHeader(CommonConstant.HEADER_SESSION_ID) String sessionId,
                                        @RequestBody @Validated JoinRoomRequest request) {
         ClientSession session = sessionService.getSession(sessionId);
         User user = userService.getUser(session.getUserId());
@@ -87,7 +87,7 @@ public class RoomController {
      * @return empty response or response with error description
      */
     @PostMapping(value = "leave", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public StandardResponse leave(@RequestHeader(ICommonConstant.HEADER_SESSION_ID) String sessionId,
+    public StandardResponse leave(@RequestHeader(CommonConstant.HEADER_SESSION_ID) String sessionId,
                                        @RequestBody @Validated LeaveRoomRequest request) {
         ClientSession session = sessionService.getSession(sessionId);
         User user = userService.getUser(session.getUserId());
@@ -108,7 +108,7 @@ public class RoomController {
      * @return empty response or response with error description
      */
     @PostMapping(value = "vote", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public StandardResponse vote(@RequestHeader(ICommonConstant.HEADER_SESSION_ID) String sessionId,
+    public StandardResponse vote(@RequestHeader(CommonConstant.HEADER_SESSION_ID) String sessionId,
                                        @RequestBody @Validated VoteRoomRequest request) {
         ClientSession session = sessionService.getSession(sessionId);
         User user = userService.getUser(session.getUserId());
@@ -129,7 +129,7 @@ public class RoomController {
      * @return response with room info or response with error description
      */
     @PostMapping(value = "setVoting", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public StandardResponse setVoting(@RequestHeader(ICommonConstant.HEADER_SESSION_ID) String sessionId,
+    public StandardResponse setVoting(@RequestHeader(CommonConstant.HEADER_SESSION_ID) String sessionId,
                                        @RequestBody @Validated SetVotingRoomRequest request) {
         ClientSession session = sessionService.getSession(sessionId);
         User user = userService.getUser(session.getUserId());
@@ -151,7 +151,7 @@ public class RoomController {
      * @return response with room info or response with error description
      */
     @PostMapping(value = "getRoom", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public StandardResponse getRoom(@RequestHeader(ICommonConstant.HEADER_SESSION_ID) String sessionId,
+    public StandardResponse getRoom(@RequestHeader(CommonConstant.HEADER_SESSION_ID) String sessionId,
                                     @RequestBody @Validated GetRoomRequest request) {
         ClientSession session = sessionService.getSession(sessionId);
         User user = userService.getUser(session.getUserId());

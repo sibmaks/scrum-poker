@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -18,7 +19,7 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Room {
+public class Room implements Serializable {
     @Id
     @Column(name = "id", nullable = false)
     @SequenceGenerator(name = "room_id_seq", sequenceName = "room_id_seq", allocationSize = 1)

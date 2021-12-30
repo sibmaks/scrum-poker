@@ -148,10 +148,8 @@ public class RoomService {
                 .findFirst()
                 .orElseThrow(NotFoundException::new);
         RoomSecret roomSecret = roomSecretRepository.findById(roomId).orElse(null);
-        if(roomSecret != null) {
-            if(!roomSecret.getSecretCode().equals(secretCode)) {
-                throw new WrongSecretCodeException();
-            }
+        if (roomSecret != null && !roomSecret.getSecretCode().equals(secretCode)) {
+            throw new WrongSecretCodeException();
         }
         return joinRoom(user, room, role);
     }
@@ -233,7 +231,7 @@ public class RoomService {
      */
     @Transactional
     public Room setVoting(User user, long roomId, boolean voting) {
-        Room room = roomRepository.getOne(roomId);
+        Room room = roomRepository.findById(roomId).orElseThrow(NotFoundException::new);
         if(room.getAuthor().getId() != user.getId()) {
             throw new NotAllowedException();
         }

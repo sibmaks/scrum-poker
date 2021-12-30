@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 /**
  * @author sibmaks
@@ -17,7 +18,7 @@ import javax.persistence.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Participant {
+public class Participant implements Serializable {
     @EmbeddedId
     private ParticipantId participantId;
     @ManyToOne

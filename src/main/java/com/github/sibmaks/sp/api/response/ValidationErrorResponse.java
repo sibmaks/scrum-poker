@@ -2,6 +2,7 @@ package com.github.sibmaks.sp.api.response;
 
 import com.github.sibmaks.sp.api.constant.ApiResultCode;
 import com.github.sibmaks.sp.api.entity.ValidationError;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.List;
  * @author sibmaks
  * Created at 26-12-2021
  */
+@EqualsAndHashCode(callSuper = true)
 public class ValidationErrorResponse extends StandardResponse {
     @Getter
     private final List<ValidationError> validationErrors;

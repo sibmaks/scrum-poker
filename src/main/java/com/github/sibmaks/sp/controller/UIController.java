@@ -1,6 +1,6 @@
 package com.github.sibmaks.sp.controller;
 
-import com.github.sibmaks.sp.api.constant.ICommonConstant;
+import com.github.sibmaks.sp.api.constant.CommonConstant;
 import com.github.sibmaks.sp.api.response.GetRoomResponse;
 import com.github.sibmaks.sp.domain.*;
 import com.github.sibmaks.sp.dto.RoomInfoDto;
@@ -18,6 +18,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.github.sibmaks.sp.api.constant.CommonConstant.REDIRECT_TO_ROOT;
 
 /**
  * HTTP controller for getting moving around the app pages
@@ -59,7 +61,7 @@ public class UIController {
     public String showRegistrationForm(HttpServletRequest request) {
         String sessionId = getSessionId(request);
         if(sessionService.isAuthorized(sessionId)) {
-            return "redirect:/";
+            return REDIRECT_TO_ROOT;
         }
         return "registration";
     }
@@ -117,7 +119,7 @@ public class UIController {
             model.addAttribute("roles", roles);
             return "create";
         }
-        return "redirect:/";
+        return REDIRECT_TO_ROOT;
     }
 
     /**
@@ -138,7 +140,7 @@ public class UIController {
         try {
             roomId = Long.parseLong(roomIdParam);
         } catch (Exception e) {
-            return "redirect:/";
+            return REDIRECT_TO_ROOT;
         }
         ClientSession session = sessionService.getSession(sessionId);
         User user = userService.getUser(session.getUserId());
@@ -146,7 +148,7 @@ public class UIController {
         if (room == null) {
             List<Role> roles = roomService.getRoles(roomId);
             if (roles == null || roles.isEmpty()) {
-                return "redirect:/";
+                return REDIRECT_TO_ROOT;
             } else {
                 boolean hasSecret = roomService.hasSecret(roomId);
                 if(roles.size() == 1 && !hasSecret) {
@@ -176,10 +178,10 @@ public class UIController {
      * @return session identifier
      */
     private static String getSessionId(HttpServletRequest request) {
-        String header = request.getHeader(ICommonConstant.HEADER_SESSION_ID);
+        String header = request.getHeader(CommonConstant.HEADER_SESSION_ID);
         if(header == null && request.getCookies() != null) {
             for (Cookie cookie : request.getCookies()) {
-                if(ICommonConstant.HEADER_SESSION_ID.equals(cookie.getName())) {
+                if(CommonConstant.HEADER_SESSION_ID.equals(cookie.getName())) {
                     return cookie.getValue();
                 }
             }

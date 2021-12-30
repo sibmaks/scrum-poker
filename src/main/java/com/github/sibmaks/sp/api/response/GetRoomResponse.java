@@ -3,6 +3,8 @@ package com.github.sibmaks.sp.api.response;
 import com.github.sibmaks.sp.api.entity.GroupInfo;
 import com.github.sibmaks.sp.api.entity.ParticipantInfo;
 import com.github.sibmaks.sp.api.entity.RoomInfo;
+import com.github.sibmaks.sp.exception.NotAllowedException;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import com.github.sibmaks.sp.domain.Participant;
 import com.github.sibmaks.sp.domain.Role;
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
  * @author sibmaks
  * Created at 12-10-2021
  */
+@EqualsAndHashCode(callSuper = true)
 public class GetRoomResponse extends StandardResponse {
     @Getter
     private final RoomInfo roomInfo;
@@ -34,7 +37,7 @@ public class GetRoomResponse extends StandardResponse {
         Participant participant = participants.stream()
                 .filter(it -> it.getParticipantId().getUser().getId() == user.getId())
                 .findFirst()
-                .orElse(null);
+                .orElseThrow(NotAllowedException::new);
 
         this.roomInfo = RoomInfo.builder()
                 .id(room.getId())

@@ -3,6 +3,7 @@ package com.github.sibmaks.sp.api.response;
 import com.github.sibmaks.sp.api.constant.ApiResultCode;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 
@@ -16,6 +17,7 @@ import java.io.Serializable;
  */
 @Data
 @AllArgsConstructor
+@EqualsAndHashCode
 public class StandardResponse implements Serializable {
     private final String resultCode;
 

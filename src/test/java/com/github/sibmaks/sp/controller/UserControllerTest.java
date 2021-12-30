@@ -1,7 +1,7 @@
 package com.github.sibmaks.sp.controller;
 
 import com.github.sibmaks.sp.api.constant.ApiResultCode;
-import com.github.sibmaks.sp.api.constant.ICommonConstant;
+import com.github.sibmaks.sp.api.constant.CommonConstant;
 import com.github.sibmaks.sp.api.request.ChangePasswordRequest;
 import com.github.sibmaks.sp.api.request.LoginRequest;
 import com.github.sibmaks.sp.api.request.RegistrationUserRequest;
@@ -43,7 +43,7 @@ class UserControllerTest {
 
     @Test
     @DisplayName("Successfully login user")
-    public void testLoginUser() {
+    void testLoginUser() {
         String login = "login@company.com";
         String password = "password";
         String sessionId = UUID.randomUUID().toString();
@@ -54,12 +54,12 @@ class UserControllerTest {
         StandardResponse standardResponse = controller.login(new LoginRequest(login, password), response);
         Assertions.assertEquals(ApiResultCode.OK.code, standardResponse.getResultCode());
 
-        Mockito.verify(response, Mockito.times(1)).setHeader(ICommonConstant.HEADER_SESSION_ID, sessionId);
+        Mockito.verify(response, Mockito.times(1)).setHeader(CommonConstant.HEADER_SESSION_ID, sessionId);
     }
 
     @Test
     @DisplayName("Successfully logout user")
-    public void testLogoutUser() {
+    void testLogoutUser() {
         String sessionId = UUID.randomUUID().toString();
 
         StandardResponse standardResponse = controller.logout(sessionId);
@@ -70,7 +70,7 @@ class UserControllerTest {
 
     @Test
     @DisplayName("User successfully registered")
-    public void testUserRegistered() {
+    void testUserRegistered() {
         String login = "login@company.com";
         String password = "password";
         String firstName = "firstName";
@@ -85,12 +85,12 @@ class UserControllerTest {
         Assertions.assertEquals(ApiResultCode.OK.code, standardResponse.getResultCode());
 
         Mockito.verify(userService, Mockito.times(1)).createUser(login, password, firstName, lastName);
-        Mockito.verify(response, Mockito.times(1)).setHeader(ICommonConstant.HEADER_SESSION_ID, sessionId);
+        Mockito.verify(response, Mockito.times(1)).setHeader(CommonConstant.HEADER_SESSION_ID, sessionId);
     }
 
     @Test
     @DisplayName("User profile successfully changed")
-    public void testUserProfileUpdate() {
+    void testUserProfileUpdate() {
         long userId = 1234L;
         String firstName = "firstName";
         String lastName = "lastName";
@@ -110,7 +110,7 @@ class UserControllerTest {
 
     @Test
     @DisplayName("User password successfully changed")
-    public void testUserProfileChanged() {
+    void testUserProfileChanged() {
         long userId = 1234L;
         String password = "password";
         String sessionId = UUID.randomUUID().toString();

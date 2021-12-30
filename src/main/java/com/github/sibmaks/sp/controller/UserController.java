@@ -1,6 +1,6 @@
 package com.github.sibmaks.sp.controller;
 
-import com.github.sibmaks.sp.api.constant.ICommonConstant;
+import com.github.sibmaks.sp.api.constant.CommonConstant;
 import com.github.sibmaks.sp.api.request.ChangePasswordRequest;
 import com.github.sibmaks.sp.api.request.LoginRequest;
 import com.github.sibmaks.sp.api.request.RegistrationUserRequest;
@@ -44,7 +44,7 @@ public class UserController {
     @PostMapping(value = "login", consumes = MediaType.APPLICATION_JSON_VALUE)
     public StandardResponse login(@RequestBody @Validated LoginRequest request, HttpServletResponse response) {
         String sessionId = userService.login(request.getLogin(), request.getPassword());
-        response.setHeader(ICommonConstant.HEADER_SESSION_ID, sessionId);
+        response.setHeader(CommonConstant.HEADER_SESSION_ID, sessionId);
         return new StandardResponse();
     }
 
@@ -57,7 +57,7 @@ public class UserController {
      * @return empty response or response with error description
      */
     @GetMapping(value = "logout")
-    public StandardResponse logout(@RequestHeader(ICommonConstant.HEADER_SESSION_ID) String sessionId) {
+    public StandardResponse logout(@RequestHeader(CommonConstant.HEADER_SESSION_ID) String sessionId) {
         sessionService.logout(sessionId);
         return new StandardResponse();
     }
@@ -78,7 +78,7 @@ public class UserController {
                                            HttpServletResponse response) {
         String sessionId = userService.createUser(request.getLogin(), request.getPassword(), request.getFirstName(),
                 request.getLastName());
-        response.setHeader(ICommonConstant.HEADER_SESSION_ID, sessionId);
+        response.setHeader(CommonConstant.HEADER_SESSION_ID, sessionId);
         return new StandardResponse();
     }
 
@@ -94,7 +94,7 @@ public class UserController {
      */
     @PostMapping(value = "update")
     @Transactional
-    public StandardResponse update(@RequestHeader(ICommonConstant.HEADER_SESSION_ID) String sessionId,
+    public StandardResponse update(@RequestHeader(CommonConstant.HEADER_SESSION_ID) String sessionId,
                                    @RequestBody @Validated UpdateUserRequest request) {
         ClientSession session = sessionService.getSession(sessionId);
         userService.update(session.getUserId(), request.getFirstName(), request.getLastName());
@@ -113,7 +113,7 @@ public class UserController {
      */
     @PostMapping(value = "changePassword")
     @Transactional
-    public StandardResponse changePassword(@RequestHeader(ICommonConstant.HEADER_SESSION_ID) String sessionId,
+    public StandardResponse changePassword(@RequestHeader(CommonConstant.HEADER_SESSION_ID) String sessionId,
                                    @RequestBody @Validated ChangePasswordRequest request) {
         ClientSession session = sessionService.getSession(sessionId);
         userService.changePassword(session.getUserId(), request.getPassword());

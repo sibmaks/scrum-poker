@@ -36,7 +36,7 @@ class RoomCleanerTest {
     private RoomCleaner roomCleaner;
 
     @Test
-    public void testCleanUp() {
+    void testCleanUp() {
         User user = new User();
         user.setFirstName("first");
         user.setLastName("last");

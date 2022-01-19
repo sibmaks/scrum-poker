@@ -18,7 +18,7 @@ class UIControllerExceptionHandlerTest {
     }
 
     @Test
-    public void testHandleUnauthorizedException() {
+    void testHandleUnauthorizedException() {
         UnauthorizedException exception = new UnauthorizedException();
         Assertions.assertEquals("redirect:/", handler.onUnauthorizedException(exception));
     }

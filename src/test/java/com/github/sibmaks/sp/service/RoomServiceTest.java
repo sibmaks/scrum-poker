@@ -43,7 +43,7 @@ class RoomServiceTest {
     private RoomService roomService;
 
     @Test
-    public void testGetRooms() {
+    void testGetRooms() {
         int userId = 42;
         List<Room> rooms = Collections.singletonList(new Room());
         Mockito.when(roomService.getRooms(42)).thenReturn(rooms);
@@ -51,7 +51,7 @@ class RoomServiceTest {
     }
 
     @Test
-    public void testGetParticipantCount() {
+    void testGetParticipantCount() {
         long participants = 100;
         Room room = new Room();
         Mockito.when(roomService.getParticipantCount(room)).thenReturn(participants);
@@ -59,7 +59,7 @@ class RoomServiceTest {
     }
 
     @Test
-    public void testGetRoom() {
+    void testGetRoom() {
         User user = new User();
         user.setId(43);
         int roomId = 42;
@@ -71,7 +71,7 @@ class RoomServiceTest {
     }
 
     @Test
-    public void testLeaveRoom() {
+    void testLeaveRoom() {
         User user = new User();
         user.setId(43);
         int roomId = 42;
@@ -85,25 +85,28 @@ class RoomServiceTest {
     }
 
     @Test
-    public void testVote_notFound() {
+    void testVote_notFound() {
         long roomId = 42;
         Mockito.when(roomRepository.findById(roomId)).thenReturn(Optional.empty());
-        Assertions.assertThrows(NotFoundException.class, () -> roomService.vote(new User(), roomId, "score"));
+        User user = new User();
+        Assertions.assertThrows(NotFoundException.class, () -> roomService.vote(user, roomId, "score"));
     }
 
     @Test
-    public void testVote_notAllowed() {
+    void testVote_notAllowed() {
         Room room = new Room();
         room.setId(42);
 
         Mockito.when(roomRepository.findById(room.getId())).thenReturn(Optional.of(room));
         Mockito.when(participantRepository.findByParticipantId(Mockito.any())).thenReturn(Optional.empty());
 
-        Assertions.assertThrows(NotAllowedException.class, () -> roomService.vote(new User(), room.getId(), "score"));
+        User user = new User();
+        long roomId = room.getId();
+        Assertions.assertThrows(NotAllowedException.class, () -> roomService.vote(user, roomId, "score"));
     }
 
     @Test
-    public void testVote_notVoting() {
+    void testVote_notVoting() {
         User user = new User();
 
         Room room = new Room();
@@ -117,11 +120,12 @@ class RoomServiceTest {
 
         Mockito.when(participantRepository.findByParticipantId(Mockito.any())).thenReturn(Optional.of(participant));
 
-        Assertions.assertThrows(NotAllowedException.class, () -> roomService.vote(user, room.getId(), "score"));
+        long roomId = room.getId();
+        Assertions.assertThrows(NotAllowedException.class, () -> roomService.vote(user, roomId, "score"));
     }
 
     @Test
-    public void testVote() {
+    void testVote() {
         String score = "score";
         User user = new User();
 
@@ -146,7 +150,7 @@ class RoomServiceTest {
     }
 
     @Test
-    public void testGetParticipants() {
+    void testGetParticipants() {
         Room room = new Room();
 
         List<Participant> participants = Collections.singletonList(new Participant());
@@ -156,14 +160,15 @@ class RoomServiceTest {
     }
 
     @Test
-    public void testSetVoting_notExists() {
+    void testSetVoting_notExists() {
         long roomId = 42;
         Mockito.when(roomRepository.findById(roomId)).thenReturn(Optional.empty());
-        Assertions.assertThrows(NotFoundException.class, () -> roomService.setVoting(new User(), roomId, true));
+        User user = new User();
+        Assertions.assertThrows(NotFoundException.class, () -> roomService.setVoting(user, roomId, true));
     }
 
     @Test
-    public void testSetVoting_notAuthor() {
+    void testSetVoting_notAuthor() {
         User author = new User();
         author.setId(41);
 
@@ -174,12 +179,13 @@ class RoomServiceTest {
         room.setId(43);
         room.setAuthor(author);
 
-        Mockito.when(roomRepository.findById(room.getId())).thenReturn(Optional.of(room));
-        Assertions.assertThrows(NotAllowedException.class, () -> roomService.setVoting(user, room.getId(), true));
+        long roomId = room.getId();
+        Mockito.when(roomRepository.findById(roomId)).thenReturn(Optional.of(room));
+        Assertions.assertThrows(NotAllowedException.class, () -> roomService.setVoting(user, roomId, true));
     }
 
     @Test
-    public void testSetVoting_true() {
+    void testSetVoting_true() {
         User user = new User();
         user.setId(42);
 
@@ -197,7 +203,7 @@ class RoomServiceTest {
     }
 
     @Test
-    public void testSetVoting_false() {
+    void testSetVoting_false() {
         User user = new User();
         user.setId(42);
 
@@ -215,7 +221,7 @@ class RoomServiceTest {
     }
 
     @Test
-    public void testGetRoles_forRoom() {
+    void testGetRoles_forRoom() {
         long roomId = 42;
 
         List<Role> roles = Collections.singletonList(new Role());
@@ -225,14 +231,14 @@ class RoomServiceTest {
     }
 
     @Test
-    public void testGetRoles() {
+    void testGetRoles() {
         List<Role> roles = Collections.singletonList(new Role());
         Mockito.when(roleRepository.findAllByOrderById()).thenReturn(roles);
         Assertions.assertEquals(roles, roomService.getRoles());
     }
 
     @Test
-    public void testHasSecret() {
+    void testHasSecret() {
         long roomId = 42;
 
         Mockito.when(roomSecretRepository.existsById(roomId)).thenReturn(true);
@@ -240,7 +246,7 @@ class RoomServiceTest {
     }
 
     @Test
-    public void testHasSecret_false() {
+    void testHasSecret_false() {
         long roomId = 42;
 
         Mockito.when(roomSecretRepository.existsById(roomId)).thenReturn(false);
@@ -248,7 +254,7 @@ class RoomServiceTest {
     }
 
     @Test
-    public void testGetSecret_author() {
+    void testGetSecret_author() {
         User user = new User();
         user.setId(42);
 
@@ -266,7 +272,7 @@ class RoomServiceTest {
     }
 
     @Test
-    public void testGetSecret_notAuthor() {
+    void testGetSecret_notAuthor() {
         User author = new User();
         author.setId(41);
 

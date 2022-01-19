@@ -50,7 +50,7 @@ class UIControllerTest {
     private UIController uiController;
 
     @Test
-    public void testIndex_authorized() {
+    void testIndex_authorized() {
         String sessionId = UUID.randomUUID().toString();
 
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
@@ -63,7 +63,7 @@ class UIControllerTest {
     }
 
     @Test
-    public void testIndex_authorized_cookie() {
+    void testIndex_authorized_cookie() {
         String sessionId = UUID.randomUUID().toString();
 
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
@@ -79,7 +79,7 @@ class UIControllerTest {
     }
 
     @Test
-    public void testIndex_unauthorized() {
+    void testIndex_unauthorized() {
         String sessionId = UUID.randomUUID().toString();
 
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
@@ -92,7 +92,7 @@ class UIControllerTest {
     }
 
     @Test
-    public void testShowRegistrationForm_authorized() {
+    void testShowRegistrationForm_authorized() {
         String sessionId = UUID.randomUUID().toString();
 
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
@@ -105,7 +105,7 @@ class UIControllerTest {
     }
 
     @Test
-    public void testShowRegistrationForm_unauthorized() {
+    void testShowRegistrationForm_unauthorized() {
         String sessionId = UUID.randomUUID().toString();
 
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
@@ -118,7 +118,7 @@ class UIControllerTest {
     }
 
     @Test
-    public void testShowRegistrationForm_unauthorized_empty_cookies() {
+    void testShowRegistrationForm_unauthorized_empty_cookies() {
         String sessionId = UUID.randomUUID().toString();
 
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
@@ -131,7 +131,7 @@ class UIControllerTest {
     }
 
     @Test
-    public void testShowRegistrationForm_unauthorized_no_cookie_or_header() {
+    void testShowRegistrationForm_unauthorized_no_cookie_or_header() {
         String sessionId = UUID.randomUUID().toString();
 
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
@@ -143,7 +143,7 @@ class UIControllerTest {
     }
 
     @Test
-    public void testShowAccountForm() {
+    void testShowAccountForm() {
         String sessionId = UUID.randomUUID().toString();
 
         ClientSession clientSession = new ClientSession();
@@ -168,7 +168,7 @@ class UIControllerTest {
     }
 
     @Test
-    public void testShowAccountForm_unauthorized() {
+    void testShowAccountForm_unauthorized() {
         String sessionId = UUID.randomUUID().toString();
 
         ClientSession clientSession = new ClientSession();
@@ -188,7 +188,7 @@ class UIControllerTest {
     }
 
     @Test
-    public void testGetRooms() {
+    void testGetRooms() {
         String sessionId = UUID.randomUUID().toString();
 
         ClientSession clientSession = new ClientSession();
@@ -228,7 +228,7 @@ class UIControllerTest {
     }
 
     @Test
-    public void testCreateRoom_authorized() {
+    void testCreateRoom_authorized() {
         String sessionId = UUID.randomUUID().toString();
 
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
@@ -247,7 +247,7 @@ class UIControllerTest {
     }
 
     @Test
-    public void testCreateRoom_unauthorized() {
+    void testCreateRoom_unauthorized() {
         String sessionId = UUID.randomUUID().toString();
 
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
@@ -261,7 +261,7 @@ class UIControllerTest {
     }
 
     @Test
-    public void testGetRoom_wrongRoomId() {
+    void testGetRoom_wrongRoomId() {
         Model model = Mockito.mock(Model.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         String response = uiController.getRoom(request, "string", model);
@@ -269,7 +269,7 @@ class UIControllerTest {
     }
 
     @Test
-    public void testGetRoom_userInRoom_voteInProgress() {
+    void testGetRoom_userInRoom_voteInProgress() {
         String sessionId = UUID.randomUUID().toString();
 
         ClientSession clientSession = new ClientSession();
@@ -324,7 +324,7 @@ class UIControllerTest {
     }
 
     @Test
-    public void testGetRoom_userInRoom_noActiveVotes() {
+    void testGetRoom_userInRoom_noActiveVotes() {
         String sessionId = UUID.randomUUID().toString();
 
         ClientSession clientSession = new ClientSession();
@@ -379,7 +379,7 @@ class UIControllerTest {
     }
 
     @Test
-    public void testGetRoom_userNotInRoom_rolesNull() {
+    void testGetRoom_userNotInRoom_rolesNull() {
         String sessionId = UUID.randomUUID().toString();
 
         ClientSession clientSession = new ClientSession();
@@ -402,7 +402,7 @@ class UIControllerTest {
     }
 
     @Test
-    public void testGetRoom_userNotInRoom_rolesEmpty() {
+    void testGetRoom_userNotInRoom_rolesEmpty() {
         String sessionId = UUID.randomUUID().toString();
 
         ClientSession clientSession = new ClientSession();
@@ -425,7 +425,7 @@ class UIControllerTest {
     }
 
     @Test
-    public void testGetRoom_userNotInRoom_autoJoin() {
+    void testGetRoom_userNotInRoom_autoJoin() {
         String sessionId = UUID.randomUUID().toString();
 
         ClientSession clientSession = new ClientSession();
@@ -486,7 +486,7 @@ class UIControllerTest {
     }
 
     @Test
-    public void testGetRoom_userNotInRoom_joinPageWithSecret() {
+    void testGetRoom_userNotInRoom_joinPageWithSecret() {
         String sessionId = UUID.randomUUID().toString();
 
         ClientSession clientSession = new ClientSession();
@@ -517,7 +517,7 @@ class UIControllerTest {
     }
 
     @Test
-    public void testGetRoom_userNotInRoom_joinPageWithRoles() {
+    void testGetRoom_userNotInRoom_joinPageWithRoles() {
         String sessionId = UUID.randomUUID().toString();
 
         ClientSession clientSession = new ClientSession();

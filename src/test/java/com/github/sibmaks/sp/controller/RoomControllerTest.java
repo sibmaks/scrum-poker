@@ -83,7 +83,8 @@ class RoomControllerTest {
         String sessionId = UUID.randomUUID().toString();
         Mockito.when(sessionService.getSession(sessionId)).thenThrow(new NotFoundException());
 
-        Assertions.assertThrows(UnauthorizedException.class, () -> controller.createRoom(sessionId, new CreateRoomRequest(name, null, roles, days, roleId)));
+        CreateRoomRequest request = new CreateRoomRequest(name, null, roles, days, roleId);
+        Assertions.assertThrows(UnauthorizedException.class, () -> controller.createRoom(sessionId, request));
     }
 
     @Test
@@ -128,7 +129,8 @@ class RoomControllerTest {
 
         Mockito.when(roomService.createRoom(user, name, secret, roles, days, roleId)).thenReturn(room);
 
-        Assertions.assertThrows(ValidationErrorException.class, () -> controller.createRoom(sessionId, new CreateRoomRequest(name, secret, roles, days, roleId)));
+        CreateRoomRequest request = new CreateRoomRequest(name, secret, roles, days, roleId);
+        Assertions.assertThrows(ValidationErrorException.class, () -> controller.createRoom(sessionId, request));
     }
 
     @Test
@@ -151,7 +153,8 @@ class RoomControllerTest {
 
         Mockito.when(roomService.createRoom(user, name, secret, roles, days, roleId)).thenReturn(room);
 
-        Assertions.assertThrows(ValidationErrorException.class, () -> controller.createRoom(sessionId, new CreateRoomRequest(name, secret, roles, days, roleId)));
+        CreateRoomRequest request = new CreateRoomRequest(name, secret, roles, days, roleId);
+        Assertions.assertThrows(ValidationErrorException.class, () -> controller.createRoom(sessionId, request));
     }
 
     @Test
@@ -271,7 +274,8 @@ class RoomControllerTest {
 
         Mockito.when(roomService.getRoom(user, roomId)).thenReturn(null);
 
-       Assertions.assertThrows(NotFoundException.class, () -> controller.getRoom(sessionId, new GetRoomRequest(roomId)));
+        GetRoomRequest request = new GetRoomRequest(roomId);
+        Assertions.assertThrows(NotFoundException.class, () -> controller.getRoom(sessionId, request));
     }
 
     private String mockSession(long userId) {

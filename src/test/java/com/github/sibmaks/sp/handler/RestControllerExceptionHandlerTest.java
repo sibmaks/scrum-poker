@@ -29,14 +29,14 @@ class RestControllerExceptionHandlerTest {
     }
 
     @Test
-    public void testOnException() {
+     void testOnException() {
         Exception e = new Exception();
         StandardResponse standardResponse = handler.onException(e);
         Assertions.assertEquals(standardResponse.getResultCode(), ApiResultCode.UNEXPECTED_ERROR.code);
     }
 
     @Test
-    public void testOnMethodArgumentNotValidException() throws NoSuchMethodException {
+    void testOnMethodArgumentNotValidException() throws NoSuchMethodException {
         class StubValidator {
             public void method(String value) {
 
@@ -60,7 +60,7 @@ class RestControllerExceptionHandlerTest {
     }
 
     @Test
-    public void testOnValidationErrorException() {
+    void testOnValidationErrorException() {
         ValidationErrorException e = new ValidationErrorException("fieldName", "error message");
         ValidationErrorResponse response = handler.onValidException(e);
         Assertions.assertEquals(response.getResultCode(), ApiResultCode.VALIDATION_ERROR.code);
@@ -71,7 +71,7 @@ class RestControllerExceptionHandlerTest {
     }
 
     @Test
-    public void testOnServiceException() {
+    void testOnServiceException() {
         NotFoundException e = new NotFoundException();
         StandardResponse standardResponse = handler.onServiceException(e);
         Assertions.assertEquals(standardResponse.getResultCode(), e.getApiResultCode().code);

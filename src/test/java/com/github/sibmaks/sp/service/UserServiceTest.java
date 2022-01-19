@@ -37,7 +37,7 @@ class UserServiceTest {
     private UserService userService;
 
     @Test
-    public void testLogin() {
+    void testLogin() {
         String password = "password";
 
         User user = new User();
@@ -54,17 +54,18 @@ class UserServiceTest {
     }
 
     @Test
-    public void testLogin_notFound() {
+    void testLogin_notFound() {
         Mockito.when(userRepository.findByLogin(Mockito.anyString())).thenReturn(null);
         Assertions.assertThrows(NotFoundException.class, () -> userService.login("login", "password"));
     }
 
     @Test
-    public void testLogin_wrongPassword() {
+    void testLogin_wrongPassword() {
+        String login = "login";
         String password = "password";
 
         User user = new User();
-        user.setLogin("login");
+        user.setLogin(login);
         user.setPassword(BCrypt.hashpw(password, BCrypt.gensalt()));
         user.setId(42);
 
@@ -73,11 +74,11 @@ class UserServiceTest {
         String sessionId = UUID.randomUUID().toString();
         Mockito.when(sessionService.createSession(user)).thenReturn(sessionId);
 
-        Assertions.assertThrows(NotFoundException.class, () -> userService.login(user.getLogin(), password + "1"));
+        Assertions.assertThrows(NotFoundException.class, () -> userService.login(login, password + "1"));
     }
 
     @Test
-    public void testCreateUser() {
+    void testCreateUser() {
         String login = "login";
         String password = "password";
         String firstName = "first";
@@ -93,7 +94,7 @@ class UserServiceTest {
     }
 
     @Test
-    public void testCreateUser_busyLogin() {
+    void testCreateUser_busyLogin() {
         String login = "login";
         String password = "password";
         String firstName = "first";
@@ -105,7 +106,7 @@ class UserServiceTest {
     }
 
     @Test
-    public void testGetUser() {
+    void testGetUser() {
         User user = new User();
         user.setId(42);
         Mockito.when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
@@ -114,16 +115,16 @@ class UserServiceTest {
     }
 
     @Test
-    public void testGetUser_notFound() {
+    void testGetUser_notFound() {
         User user = new User();
         user.setId(42);
-        Mockito.when(userRepository.findById(user.getId())).thenReturn(Optional.empty());
-
-        Assertions.assertThrows(NotFoundException.class, () -> userService.getUser(user.getId()));
+        long userId = user.getId();
+        Mockito.when(userRepository.findById(userId)).thenReturn(Optional.empty());
+        Assertions.assertThrows(NotFoundException.class, () -> userService.getUser(userId));
     }
 
     @Test
-    public void testUpdate() {
+    void testUpdate() {
         User user = new User();
         user.setFirstName("first1");
         user.setLastName("last1");
@@ -134,7 +135,7 @@ class UserServiceTest {
     }
 
     @Test
-    public void testUpdate_notChanged() {
+    void testUpdate_notChanged() {
         User user = new User();
         user.setFirstName("first1");
         user.setLastName("last1");
@@ -145,7 +146,7 @@ class UserServiceTest {
     }
 
     @Test
-    public void testUpdate_notChanged_null() {
+    void testUpdate_notChanged_null() {
         User user = new User();
         user.setFirstName("first1");
         user.setLastName("last1");
@@ -156,7 +157,7 @@ class UserServiceTest {
     }
 
     @Test
-    public void testChangePassword() {
+    void testChangePassword() {
         User user = new User();
         user.setPassword(BCrypt.hashpw("password", BCrypt.gensalt()));
 
@@ -166,31 +167,25 @@ class UserServiceTest {
     }
 
     @Test
-    public void testChangePassword_null() {
-        User user = new User();
-        user.setPassword(BCrypt.hashpw("password", BCrypt.gensalt()));
-
-        userService.changePassword(user, null);
-
-        Mockito.verify(userRepository, Mockito.never()).save(user);
+    void testChangePassword_null() {
+        testNoChangePassword(null);
     }
 
     @Test
-    public void testChangePassword_empty() {
-        User user = new User();
-        user.setPassword(BCrypt.hashpw("password", BCrypt.gensalt()));
-
-        userService.changePassword(user, "");
-
-        Mockito.verify(userRepository, Mockito.never()).save(user);
+    void testChangePassword_empty() {
+        testNoChangePassword("");
     }
 
     @Test
-    public void testChangePassword_same() {
+    void testChangePassword_same() {
+        testNoChangePassword("password");
+    }
+
+    private void testNoChangePassword(String password) {
         User user = new User();
         user.setPassword(BCrypt.hashpw("password", BCrypt.gensalt()));
 
-        userService.changePassword(user, "password");
+        userService.changePassword(user, password);
 
         Mockito.verify(userRepository, Mockito.never()).save(user);
     }

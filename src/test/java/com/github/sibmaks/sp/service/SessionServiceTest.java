@@ -34,7 +34,7 @@ class SessionServiceTest {
     private SessionService service;
 
     @Test
-    public void testCreateSession() {
+    void testCreateSession() {
         User user = new User();
         user.setId(42);
 
@@ -55,7 +55,7 @@ class SessionServiceTest {
     }
 
     @Test
-    public void testGetSession() {
+    void testGetSession() {
         String sessionId = UUID.randomUUID().toString();
         ClientSession clientSession = new ClientSession();
         Mockito.when(clientSessionRepository.findById(sessionId)).thenReturn(Optional.of(clientSession));
@@ -64,7 +64,7 @@ class SessionServiceTest {
     }
 
     @Test
-    public void testGetSession_notExists() {
+    void testGetSession_notExists() {
         String sessionId = UUID.randomUUID().toString();
 
         Mockito.when(clientSessionRepository.findById(sessionId)).thenReturn(Optional.empty());
@@ -73,12 +73,12 @@ class SessionServiceTest {
     }
 
     @Test
-    public void testIsAuthorized_sessionId_null() {
+    void testIsAuthorized_sessionId_null() {
         Assertions.assertFalse(service.isAuthorized(null));
     }
 
     @Test
-    public void testIsAuthorized_true() {
+    void testIsAuthorized_true() {
         String sessionId = UUID.randomUUID().toString();
 
         Mockito.when(clientSessionRepository.existsById(sessionId)).thenReturn(true);
@@ -87,7 +87,7 @@ class SessionServiceTest {
     }
 
     @Test
-    public void testIsAuthorized_false() {
+    void testIsAuthorized_false() {
         String sessionId = UUID.randomUUID().toString();
 
         Mockito.when(clientSessionRepository.existsById(sessionId)).thenReturn(false);
@@ -96,14 +96,14 @@ class SessionServiceTest {
     }
 
     @Test
-    public void testLogout_null() {
+    void testLogout_null() {
         service.logout(null);
 
         Mockito.verify(clientSessionRepository, Mockito.never()).deleteById(Mockito.anyString());
     }
 
     @Test
-    public void testLogout() {
+    void testLogout() {
         String sessionId = UUID.randomUUID().toString();
 
         service.logout(sessionId);

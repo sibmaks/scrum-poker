@@ -3,7 +3,6 @@ package com.github.sibmaks.sp.service;
 import com.github.sibmaks.sp.domain.User;
 import com.github.sibmaks.sp.exception.LoginIsBusyException;
 import com.github.sibmaks.sp.exception.NotFoundException;
-import com.github.sibmaks.sp.exception.UnauthorizedException;
 import com.github.sibmaks.sp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -76,32 +75,31 @@ public class UserService {
                 .lastName(HtmlUtils.htmlEscape(lastName))
                 .build();
 
-        userRepository.save(user);
+        user = userRepository.save(user);
 
         return sessionService.createSession(user);
     }
 
     /**
-     * Get user by user identifier. If user not found then {@link UnauthorizedException} will be thrown.
+     * Get user by user identifier. If user not found then {@link NotFoundException} will be thrown.
      *
      * @param userId user identifier
      * @return user domain
      */
     public User getUser(long userId) {
-        return userRepository.findById(userId).orElseThrow(UnauthorizedException::new);
+        return userRepository.findById(userId)
+                .orElseThrow(NotFoundException::new);
     }
 
     /**
      * Update user data.
-     * In case if user not found {@link UnauthorizedException} will be thrown.
      *
-     * @param userId user identifier
+     * @param user user domain
      * @param firstName new user first name
      * @param lastName new user last name
      * @return is something changed or not
      */
-    public boolean update(long userId, String firstName, String lastName) {
-        User user = userRepository.findById(userId).orElseThrow(UnauthorizedException::new);
+    public boolean update(User user, String firstName, String lastName) {
         boolean changed = false;
         if(firstName != null && !firstName.equals(user.getFirstName())) {
             user.setFirstName(HtmlUtils.htmlEscape(firstName));
@@ -119,13 +117,11 @@ public class UserService {
 
     /**
      * Update user password.
-     * In case if user not found {@link UnauthorizedException} will be thrown.
      *
-     * @param userId user identifier
+     * @param user user domain
      * @param password new user password
      */
-    public void changePassword(long userId, String password) {
-        User user = userRepository.findById(userId).orElseThrow(UnauthorizedException::new);
+    public void changePassword(User user, String password) {
         if(password != null && !password.isEmpty() && !BCrypt.checkpw(password, user.getPassword())) {
             user.setPassword(BCrypt.hashpw(password, BCrypt.gensalt()));
             userRepository.save(user);

@@ -2,7 +2,7 @@ package com.github.sibmaks.sp.service;
 
 import com.github.sibmaks.sp.domain.ClientSession;
 import com.github.sibmaks.sp.domain.User;
-import com.github.sibmaks.sp.exception.UnauthorizedException;
+import com.github.sibmaks.sp.exception.NotFoundException;
 import com.github.sibmaks.sp.repository.ClientSessionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,7 +69,7 @@ public class SessionService {
 
     /**
      * Get current client session.
-     * {@link UnauthorizedException} will be thrown if session not found
+     * {@link NotFoundException} will be thrown if session not found
      *
      * @param sessionId session identifier
      * @return client session domain
@@ -77,7 +77,7 @@ public class SessionService {
     public ClientSession getSession(String sessionId) {
         return Optional.ofNullable(sessionId)
                 .flatMap(clientSessionRepository::findById)
-                .orElseThrow(UnauthorizedException::new);
+                .orElseThrow(NotFoundException::new);
     }
 
     /**

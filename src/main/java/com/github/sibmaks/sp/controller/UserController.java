@@ -7,6 +7,9 @@ import com.github.sibmaks.sp.api.request.RegistrationUserRequest;
 import com.github.sibmaks.sp.api.request.UpdateUserRequest;
 import com.github.sibmaks.sp.api.response.StandardResponse;
 import com.github.sibmaks.sp.domain.ClientSession;
+import com.github.sibmaks.sp.domain.User;
+import com.github.sibmaks.sp.exception.NotFoundException;
+import com.github.sibmaks.sp.exception.UnauthorizedException;
 import com.github.sibmaks.sp.service.SessionService;
 import com.github.sibmaks.sp.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -96,8 +99,8 @@ public class UserController {
     @Transactional
     public StandardResponse update(@RequestHeader(CommonConstant.HEADER_SESSION_ID) String sessionId,
                                    @RequestBody @Validated UpdateUserRequest request) {
-        ClientSession session = sessionService.getSession(sessionId);
-        userService.update(session.getUserId(), request.getFirstName(), request.getLastName());
+        User user = getUserOrUnauthorized(sessionId);
+        userService.update(user, request.getFirstName(), request.getLastName());
         return new StandardResponse();
     }
 
@@ -115,8 +118,24 @@ public class UserController {
     @Transactional
     public StandardResponse changePassword(@RequestHeader(CommonConstant.HEADER_SESSION_ID) String sessionId,
                                    @RequestBody @Validated ChangePasswordRequest request) {
-        ClientSession session = sessionService.getSession(sessionId);
-        userService.changePassword(session.getUserId(), request.getPassword());
+        User user = getUserOrUnauthorized(sessionId);
+        userService.changePassword(user, request.getPassword());
         return new StandardResponse();
+    }
+
+    /**
+     * Method get current session and extract user from session
+     * If session or user not found or invalid {@link UnauthorizedException} will be thrown
+     *
+     * @param sessionId session identifier
+     * @return domain user, not null
+     */
+    private User getUserOrUnauthorized(String sessionId) {
+        try {
+            ClientSession session = sessionService.getSession(sessionId);
+            return userService.getUser(session.getUserId());
+        } catch (NotFoundException e) {
+            throw new UnauthorizedException();
+        }
     }
 }

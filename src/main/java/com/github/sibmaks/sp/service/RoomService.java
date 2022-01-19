@@ -155,7 +155,7 @@ public class RoomService {
     }
 
     /**
-     * Join client to passed room with specific role
+     * Join user to passed room with specific role
      *
      * @param user user domain
      * @param room room domain

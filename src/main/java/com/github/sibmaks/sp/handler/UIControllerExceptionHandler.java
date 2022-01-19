@@ -24,7 +24,7 @@ public class UIControllerExceptionHandler {
      * @return redirect link to root page
      */
     @ExceptionHandler(UnauthorizedException.class)
-    public String onServiceException(UnauthorizedException e) {
+    public String onUnauthorizedException(UnauthorizedException e) {
         log.warn("Unauthorized access", e);
         return "redirect:/";
     }

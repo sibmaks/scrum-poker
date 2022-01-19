@@ -9,6 +9,9 @@ import com.github.sibmaks.sp.api.request.UpdateUserRequest;
 import com.github.sibmaks.sp.api.response.StandardResponse;
 import com.github.sibmaks.sp.conf.DataSourceStub;
 import com.github.sibmaks.sp.domain.ClientSession;
+import com.github.sibmaks.sp.domain.User;
+import com.github.sibmaks.sp.exception.NotFoundException;
+import com.github.sibmaks.sp.exception.UnauthorizedException;
 import com.github.sibmaks.sp.service.SessionService;
 import com.github.sibmaks.sp.service.UserService;
 import org.junit.jupiter.api.Assertions;
@@ -96,16 +99,33 @@ class UserControllerTest {
         String lastName = "lastName";
         String sessionId = UUID.randomUUID().toString();
 
+        User user = new User();
+        user.setId(userId);
+
         ClientSession clientSession = ClientSession.builder().userId(userId).sessionId(sessionId).build();
         Mockito.when(sessionService.getSession(sessionId)).thenReturn(clientSession);
+        Mockito.when(userService.getUser(userId)).thenReturn(user);
 
-        Mockito.when(userService.update(userId, firstName, lastName)).thenReturn(true);
+        Mockito.when(userService.update(user, firstName, lastName)).thenReturn(true);
 
         UpdateUserRequest request = new UpdateUserRequest(firstName, lastName);
         StandardResponse standardResponse = controller.update(sessionId, request);
 
         Assertions.assertEquals(ApiResultCode.OK.code, standardResponse.getResultCode());
-        Mockito.verify(userService, Mockito.times(1)).update(userId, firstName, lastName);
+        Mockito.verify(userService, Mockito.times(1)).update(user, firstName, lastName);
+    }
+
+    @Test
+    @DisplayName("User profile not changed when client unauthorized")
+    void testUserProfileUpdate_unauthorized() {
+        String firstName = "firstName";
+        String lastName = "lastName";
+        String sessionId = UUID.randomUUID().toString();
+
+        Mockito.when(sessionService.getSession(sessionId)).thenThrow(new NotFoundException());
+
+        UpdateUserRequest request = new UpdateUserRequest(firstName, lastName);
+        Assertions.assertThrows(UnauthorizedException.class, () -> controller.update(sessionId, request));
     }
 
     @Test
@@ -115,13 +135,17 @@ class UserControllerTest {
         String password = "password";
         String sessionId = UUID.randomUUID().toString();
 
+        User user = new User();
+        user.setId(userId);
+
         ClientSession clientSession = ClientSession.builder().userId(userId).sessionId(sessionId).build();
         Mockito.when(sessionService.getSession(sessionId)).thenReturn(clientSession);
+        Mockito.when(userService.getUser(userId)).thenReturn(user);
 
         ChangePasswordRequest request = new ChangePasswordRequest(password);
         StandardResponse standardResponse = controller.changePassword(sessionId, request);
 
         Assertions.assertEquals(ApiResultCode.OK.code, standardResponse.getResultCode());
-        Mockito.verify(userService, Mockito.times(1)).changePassword(userId, password);
+        Mockito.verify(userService, Mockito.times(1)).changePassword(user, password);
     }
 }

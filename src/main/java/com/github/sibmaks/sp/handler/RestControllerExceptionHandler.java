@@ -47,7 +47,7 @@ public class RestControllerExceptionHandler {
     @ResponseStatus(value= HttpStatus.OK)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseBody
-    public StandardResponse onValidException(MethodArgumentNotValidException e) {
+    public ValidationErrorResponse onMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         log.warn(e.getMessage(), e);
         List<ValidationError> validationErrors = e.getBindingResult().getFieldErrors().stream()
                 .map(it -> new ValidationError(it.getField(), it.getDefaultMessage()))
@@ -64,7 +64,7 @@ public class RestControllerExceptionHandler {
     @ResponseStatus(value= HttpStatus.OK)
     @ExceptionHandler(ValidationErrorException.class)
     @ResponseBody
-    public StandardResponse onValidException(ValidationErrorException e) {
+    public ValidationErrorResponse onValidException(ValidationErrorException e) {
         log.warn(e.getMessage(), e);
         return new ValidationErrorResponse(e.getValidationErrors());
     }

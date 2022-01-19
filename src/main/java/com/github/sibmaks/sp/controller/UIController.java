@@ -4,6 +4,8 @@ import com.github.sibmaks.sp.api.constant.CommonConstant;
 import com.github.sibmaks.sp.api.response.GetRoomResponse;
 import com.github.sibmaks.sp.domain.*;
 import com.github.sibmaks.sp.dto.RoomInfoDto;
+import com.github.sibmaks.sp.exception.NotFoundException;
+import com.github.sibmaks.sp.exception.UnauthorizedException;
 import com.github.sibmaks.sp.service.RoomService;
 import com.github.sibmaks.sp.service.SessionService;
 import com.github.sibmaks.sp.service.UserService;
@@ -77,8 +79,7 @@ public class UIController {
     @GetMapping("/account")
     public String showAccountForm(HttpServletRequest request, Model model) {
         String sessionId = getSessionId(request);
-        ClientSession session = sessionService.getSession(sessionId);
-        User user = userService.getUser(session.getUserId());
+        User user = getUserOrUnauthorized(sessionId);
         model.addAttribute("firstName", user.getFirstName());
         model.addAttribute("lastName", user.getLastName());
         return "account";
@@ -95,8 +96,8 @@ public class UIController {
     @GetMapping("/rooms")
     public String getRooms(HttpServletRequest request, Model model) {
         String sessionId = getSessionId(request);
-        ClientSession session = sessionService.getSession(sessionId);
-        List<RoomInfoDto> rooms = roomService.getRooms(session.getUserId()).stream()
+        User user = getUserOrUnauthorized(sessionId);
+        List<RoomInfoDto> rooms = roomService.getRooms(user.getId()).stream()
                 .map(it -> new RoomInfoDto(it, roomService.getParticipantCount(it)))
                 .collect(Collectors.toList());
         model.addAttribute("rooms", rooms);
@@ -135,15 +136,14 @@ public class UIController {
      */
     @GetMapping("/room/{roomId}")
     public String getRoom(HttpServletRequest request, @PathVariable("roomId") String roomIdParam, Model model) {
-        String sessionId = getSessionId(request);
         long roomId;
         try {
             roomId = Long.parseLong(roomIdParam);
         } catch (Exception e) {
             return REDIRECT_TO_ROOT;
         }
-        ClientSession session = sessionService.getSession(sessionId);
-        User user = userService.getUser(session.getUserId());
+        String sessionId = getSessionId(request);
+        User user = getUserOrUnauthorized(sessionId);
         Room room = roomService.getRoom(user, roomId);
         if (room == null) {
             List<Role> roles = roomService.getRoles(roomId);
@@ -187,5 +187,21 @@ public class UIController {
             }
         }
         return header;
+    }
+
+    /**
+     * Method get current session and extract user from session
+     * If session or user not found or invalid {@link UnauthorizedException} will be thrown
+     *
+     * @param sessionId session identifier
+     * @return domain user, not null
+     */
+    private User getUserOrUnauthorized(String sessionId) {
+        try {
+            ClientSession session = sessionService.getSession(sessionId);
+            return userService.getUser(session.getUserId());
+        } catch (NotFoundException e) {
+            throw new UnauthorizedException();
+        }
     }
 }

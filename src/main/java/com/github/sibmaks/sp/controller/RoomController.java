@@ -8,6 +8,7 @@ import com.github.sibmaks.sp.domain.Participant;
 import com.github.sibmaks.sp.domain.Room;
 import com.github.sibmaks.sp.domain.User;
 import com.github.sibmaks.sp.exception.NotFoundException;
+import com.github.sibmaks.sp.exception.UnauthorizedException;
 import com.github.sibmaks.sp.exception.ValidationErrorException;
 import com.github.sibmaks.sp.service.RoomService;
 import com.github.sibmaks.sp.service.SessionService;
@@ -46,8 +47,7 @@ public class RoomController {
     @PostMapping(value = "createRoom", consumes = MediaType.APPLICATION_JSON_VALUE)
     public StandardResponse createRoom(@RequestHeader(CommonConstant.HEADER_SESSION_ID) String sessionId,
                                        @RequestBody @Validated CreateRoomRequest request) {
-        ClientSession session = sessionService.getSession(sessionId);
-        User user = userService.getUser(session.getUserId());
+        User user = getUserOrUnauthorized(sessionId);
         String secretCode = request.getSecretCode();
         if(secretCode != null && (secretCode.length() < 4 || secretCode.length() > 128)) {
             throw new ValidationErrorException("secretCode", "size must be between 4 and 128");
@@ -69,8 +69,7 @@ public class RoomController {
     @PostMapping(value = "join", consumes = MediaType.APPLICATION_JSON_VALUE)
     public StandardResponse join(@RequestHeader(CommonConstant.HEADER_SESSION_ID) String sessionId,
                                        @RequestBody @Validated JoinRoomRequest request) {
-        ClientSession session = sessionService.getSession(sessionId);
-        User user = userService.getUser(session.getUserId());
+        User user = getUserOrUnauthorized(sessionId);
         Room room = roomService.joinRoom(user, request.getRoomId(), request.getRoleId(), request.getSecretCode());
         return new JoinRoomResponse(room);
     }
@@ -89,8 +88,7 @@ public class RoomController {
     @PostMapping(value = "leave", consumes = MediaType.APPLICATION_JSON_VALUE)
     public StandardResponse leave(@RequestHeader(CommonConstant.HEADER_SESSION_ID) String sessionId,
                                        @RequestBody @Validated LeaveRoomRequest request) {
-        ClientSession session = sessionService.getSession(sessionId);
-        User user = userService.getUser(session.getUserId());
+        User user = getUserOrUnauthorized(sessionId);
         roomService.leaveRoom(user, request.getRoomId());
         return new StandardResponse();
     }
@@ -110,8 +108,7 @@ public class RoomController {
     @PostMapping(value = "vote", consumes = MediaType.APPLICATION_JSON_VALUE)
     public StandardResponse vote(@RequestHeader(CommonConstant.HEADER_SESSION_ID) String sessionId,
                                        @RequestBody @Validated VoteRoomRequest request) {
-        ClientSession session = sessionService.getSession(sessionId);
-        User user = userService.getUser(session.getUserId());
+        User user = getUserOrUnauthorized(sessionId);
         roomService.vote(user, request.getRoomId(), request.getScore());
         return new StandardResponse();
     }
@@ -131,8 +128,7 @@ public class RoomController {
     @PostMapping(value = "setVoting", consumes = MediaType.APPLICATION_JSON_VALUE)
     public StandardResponse setVoting(@RequestHeader(CommonConstant.HEADER_SESSION_ID) String sessionId,
                                        @RequestBody @Validated SetVotingRoomRequest request) {
-        ClientSession session = sessionService.getSession(sessionId);
-        User user = userService.getUser(session.getUserId());
+        User user = getUserOrUnauthorized(sessionId);
         Room room = roomService.setVoting(user, request.getRoomId(), request.isVoting());
         List<Participant> participants = roomService.getParticipants(room);
         return new GetRoomResponse(user, room, participants);
@@ -153,13 +149,28 @@ public class RoomController {
     @PostMapping(value = "getRoom", consumes = MediaType.APPLICATION_JSON_VALUE)
     public StandardResponse getRoom(@RequestHeader(CommonConstant.HEADER_SESSION_ID) String sessionId,
                                     @RequestBody @Validated GetRoomRequest request) {
-        ClientSession session = sessionService.getSession(sessionId);
-        User user = userService.getUser(session.getUserId());
+        User user = getUserOrUnauthorized(sessionId);
         Room room = roomService.getRoom(user, request.getRoomId());
         if(room == null) {
             throw new NotFoundException();
         }
         List<Participant> participants = roomService.getParticipants(room);
         return new GetRoomResponse(user, room, participants);
+    }
+
+    /**
+     * Method get current session and extract user from session
+     * If session or user not found or invalid {@link UnauthorizedException} will be thrown
+     *
+     * @param sessionId session identifier
+     * @return domain user, not null
+     */
+    private User getUserOrUnauthorized(String sessionId) {
+        try {
+            ClientSession session = sessionService.getSession(sessionId);
+            return userService.getUser(session.getUserId());
+        } catch (NotFoundException e) {
+            throw new UnauthorizedException();
+        }
     }
 }

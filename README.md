@@ -26,7 +26,7 @@ For `ttl.type` used enum values: `java.time.temporal.ChronoUnit`, for example:
 
 ## Life demo
 
-You can see how it works here: http://45.67.230.124/
+You can see how it works here: https://poker.sibmaks.ru/
 
 ## Service endpoint
 

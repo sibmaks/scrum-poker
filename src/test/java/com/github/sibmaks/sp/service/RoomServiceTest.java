@@ -4,10 +4,12 @@ import com.github.sibmaks.sp.conf.DataSourceStub;
 import com.github.sibmaks.sp.domain.*;
 import com.github.sibmaks.sp.exception.NotAllowedException;
 import com.github.sibmaks.sp.exception.NotFoundException;
+import com.github.sibmaks.sp.exception.WrongSecretCodeException;
 import com.github.sibmaks.sp.repository.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,9 +18,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @author drobyshev-ma
@@ -41,6 +41,119 @@ class RoomServiceTest {
     private RoomSecretRepository roomSecretRepository;
     @Autowired
     private RoomService roomService;
+
+    @Test
+    void testJoinRoom_notFound_room() {
+        long roomId = 500;
+        Mockito.when(roomRepository.findById(roomId)).thenReturn(Optional.empty());
+
+        Assertions.assertThrows(NotFoundException.class, () -> roomService.joinRoom(null, roomId, -1, null));
+    }
+
+    @Test
+    void testJoinRoom_notFound_role() {
+        long roomId = 500;
+        int roleId = 501;
+
+        Room room = new Room();
+        Mockito.when(roomRepository.findById(roomId)).thenReturn(Optional.of(room));
+        Mockito.when(roomRoleRepository.findAllByRoomRoleIdRoom(room)).thenReturn(Collections.emptyList());
+
+        Assertions.assertThrows(NotFoundException.class, () -> roomService.joinRoom(null, roomId, roleId, null));
+    }
+
+    @Test
+    void testJoinRoom_wrongSecret() {
+        long roomId = 500;
+        int roleId = 501;
+        String secret = UUID.randomUUID().toString();
+
+        Room room = new Room();
+        Mockito.when(roomRepository.findById(roomId)).thenReturn(Optional.of(room));
+
+        Role role = new Role();
+        role.setId(roleId);
+        RoomRole roomRole = new RoomRole();
+        roomRole.setRoomRoleId(new RoomRoleId(room, role));
+        Mockito.when(roomRoleRepository.findAllByRoomRoleIdRoom(room)).thenReturn(Collections.singletonList(roomRole));
+
+        RoomSecret roomSecret = new RoomSecret();
+        roomSecret.setSecretCode(secret + 1);
+        Mockito.when(roomSecretRepository.findById(roomId)).thenReturn(Optional.of(roomSecret));
+
+        Assertions.assertThrows(WrongSecretCodeException.class, () -> roomService.joinRoom(null, roomId, roleId, secret));
+    }
+
+    @Test
+    void testJoinRoom_withSecretCode() {
+        long roomId = 500;
+        int roleId = 501;
+        String secret = UUID.randomUUID().toString();
+
+        Room room = new Room();
+        Mockito.when(roomRepository.findById(roomId)).thenReturn(Optional.of(room));
+
+        Role role = new Role();
+        role.setId(roleId);
+        RoomRole roomRole = new RoomRole();
+        roomRole.setRoomRoleId(new RoomRoleId(room, role));
+        Mockito.when(roomRoleRepository.findAllByRoomRoleIdRoom(room)).thenReturn(Collections.singletonList(roomRole));
+
+        RoomSecret roomSecret = new RoomSecret();
+        roomSecret.setSecretCode(secret);
+        Mockito.when(roomSecretRepository.findById(roomId)).thenReturn(Optional.of(roomSecret));
+
+        User user = new User();
+        user.setId(100);
+
+        ArgumentCaptor<Participant> participantArgumentCaptor = ArgumentCaptor.forClass(Participant.class);
+        Mockito.when(participantRepository.save(participantArgumentCaptor.capture())).thenAnswer(it -> it.getArguments()[0]);
+
+        Room getRoom = new Room();
+        Mockito.when(roomRepository.findByParticipantAndId(user.getId(), roomId)).thenReturn(getRoom);
+
+        Room joinRoom = roomService.joinRoom(user, roomId, roleId, secret);
+        Assertions.assertEquals(getRoom, joinRoom);
+
+        Participant participant = participantArgumentCaptor.getValue();
+        Assertions.assertEquals(participant.getParticipantId().getRoom(), room);
+        Assertions.assertEquals(participant.getParticipantId().getUser(), user);
+        Assertions.assertEquals(participant.getRole(), role);
+    }
+
+    @Test
+    void testJoinRoom_withoutSecretCode() {
+        long roomId = 500;
+        int roleId = 501;
+
+        Room room = new Room();
+        Mockito.when(roomRepository.findById(roomId)).thenReturn(Optional.of(room));
+
+        Role role = new Role();
+        role.setId(roleId);
+        RoomRole roomRole = new RoomRole();
+        roomRole.setRoomRoleId(new RoomRoleId(room, role));
+        Mockito.when(roomRoleRepository.findAllByRoomRoleIdRoom(room)).thenReturn(Collections.singletonList(roomRole));
+
+        Mockito.when(roomSecretRepository.findById(roomId)).thenReturn(Optional.empty());
+
+        User user = new User();
+        user.setId(100);
+
+        ArgumentCaptor<Participant> participantArgumentCaptor = ArgumentCaptor.forClass(Participant.class);
+        Mockito.when(participantRepository.save(participantArgumentCaptor.capture())).thenAnswer(it -> it.getArguments()[0]);
+
+        Room getRoom = new Room();
+        Mockito.when(roomRepository.findByParticipantAndId(user.getId(), roomId)).thenReturn(getRoom);
+
+        Room joinRoom = roomService.joinRoom(user, roomId, roleId, null);
+        Assertions.assertEquals(getRoom, joinRoom);
+
+        Participant participant = participantArgumentCaptor.getValue();
+        Assertions.assertEquals(participant.getParticipantId().getRoom(), room);
+        Assertions.assertEquals(participant.getParticipantId().getUser(), user);
+        Assertions.assertEquals(participant.getRole(), role);
+    }
 
     @Test
     void testGetRooms() {

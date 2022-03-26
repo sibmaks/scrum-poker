@@ -44,7 +44,7 @@ class RoomServiceTest {
     private RoomService roomService;
 
     @Test
-    void testCreateRoom_notFound_rooms() {
+    void testCreateRoom_notFound_roles() {
         List<Integer> roleIds = new ArrayList<>();
         roleIds.add(500);
         Mockito.when(roleRepository.findAllByIdIn(roleIds)).thenReturn(Collections.emptyList());
@@ -53,7 +53,17 @@ class RoomServiceTest {
     }
 
     @Test
-    void testCreateRoom_notFound_room() {
+    void testCreateRoom_notFound_one_roles() {
+        List<Integer> roleIds = new ArrayList<>();
+        roleIds.add(1);
+        roleIds.add(2);
+        Mockito.when(roleRepository.findAllByIdIn(roleIds)).thenReturn(Collections.singletonList(new Role()));
+
+        Assertions.assertThrows(NotFoundException.class, () -> roomService.createRoom(null, null, null, roleIds, -1, -1));
+    }
+
+    @Test
+    void testCreateRoom_notFound_role() {
         Role role1 = new Role();
         role1.setId(500);
 

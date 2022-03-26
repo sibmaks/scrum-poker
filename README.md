@@ -1,3 +1,11 @@
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=sibmaks_scrum-poker&metric=bugs)](https://sonarcloud.io/summary/new_code?id=sibmaks_scrum-poker)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=sibmaks_scrum-poker&metric=coverage)](https://sonarcloud.io/summary/new_code?id=sibmaks_scrum-poker)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=sibmaks_scrum-poker&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=sibmaks_scrum-poker)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=sibmaks_scrum-poker&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=sibmaks_scrum-poker)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=sibmaks_scrum-poker&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=sibmaks_scrum-poker)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=sibmaks_scrum-poker&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=sibmaks_scrum-poker)
+
+
 # Scrum poker
 
 ## Info

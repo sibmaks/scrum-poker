@@ -25,6 +25,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -256,6 +257,36 @@ class RoomControllerTest {
 
         Mockito.when(roomService.getRoom(user, roomId)).thenReturn(room);
         Mockito.when(roomService.getParticipants(room)).thenReturn(Collections.singletonList(participant));
+
+        StandardResponse standardResponse = controller.getRoom(sessionId, new GetRoomRequest(roomId));
+        Assertions.assertEquals(ApiResultCode.OK.code, standardResponse.getResultCode());
+
+        GetRoomResponse getRoomResponse = (GetRoomResponse) standardResponse;
+        Assertions.assertEquals(roomId, getRoomResponse.getRoomInfo().getId());
+    }
+
+    @Test
+    @DisplayName("Successfully get room info not for author")
+    void testGetRoom_notAuthor() {
+        int roomId = 123;
+
+        String sessionId = mockSession(123);
+        User user = mockUser(123);
+        User userOther = mockUser(124);
+
+        Room room = new Room();
+        room.setId(roomId);
+        room.setAuthor(userOther);
+
+        Participant participantOther = new Participant();
+        participantOther.setParticipantId(new ParticipantId(userOther, room));
+
+        Participant participant = new Participant();
+        participant.setParticipantId(new ParticipantId(user, room));
+        participant.setRole(new Role());
+
+        Mockito.when(roomService.getRoom(user, roomId)).thenReturn(room);
+        Mockito.when(roomService.getParticipants(room)).thenReturn(Arrays.asList(participantOther, participant));
 
         StandardResponse standardResponse = controller.getRoom(sessionId, new GetRoomRequest(roomId));
         Assertions.assertEquals(ApiResultCode.OK.code, standardResponse.getResultCode());

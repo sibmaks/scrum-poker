@@ -280,10 +280,13 @@ class RoomControllerTest {
 
         Participant participantOther = new Participant();
         participantOther.setParticipantId(new ParticipantId(userOther, room));
+        participantOther.setRole(new Role());
+        participantOther.getRole().setId(1);
 
         Participant participant = new Participant();
         participant.setParticipantId(new ParticipantId(user, room));
         participant.setRole(new Role());
+        participant.getRole().setId(1);
 
         Mockito.when(roomService.getRoom(user, roomId)).thenReturn(room);
         Mockito.when(roomService.getParticipants(room)).thenReturn(Arrays.asList(participantOther, participant));

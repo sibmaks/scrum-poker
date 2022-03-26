@@ -17,6 +17,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.web.util.HtmlUtils;
 
 import java.util.*;
 
@@ -41,6 +42,166 @@ class RoomServiceTest {
     private RoomSecretRepository roomSecretRepository;
     @Autowired
     private RoomService roomService;
+
+    @Test
+    void testCreateRoom_notFound_rooms() {
+        List<Integer> roleIds = new ArrayList<>();
+        roleIds.add(500);
+        Mockito.when(roleRepository.findAllByIdIn(roleIds)).thenReturn(Collections.emptyList());
+
+        Assertions.assertThrows(NotFoundException.class, () -> roomService.createRoom(null, null, null, roleIds, -1, -1));
+    }
+
+    @Test
+    void testCreateRoom_notFound_room() {
+        Role role1 = new Role();
+        role1.setId(500);
+
+        Role role = new Role();
+        role.setId(501);
+
+        List<Integer> roleIds = new ArrayList<>();
+        roleIds.add(role1.getId());
+        roleIds.add(role.getId());
+        Mockito.when(roleRepository.findAllByIdIn(roleIds)).thenReturn(Arrays.asList(role1, role));
+
+        Assertions.assertThrows(NotFoundException.class, () -> roomService.createRoom(null, null,
+                null, roleIds, -1, -1));
+    }
+
+    @Test
+    void testCreateRoom_withoutSecretCode() {
+        Role role1 = new Role();
+        role1.setId(500);
+
+        Role role = new Role();
+        role.setId(501);
+
+        List<Integer> roleIds = new ArrayList<>();
+        roleIds.add(role1.getId());
+        roleIds.add(role.getId());
+        Mockito.when(roleRepository.findAllByIdIn(roleIds)).thenReturn(Arrays.asList(role1, role));
+
+        int roomId = 100;
+        ArgumentCaptor<Room> roomArgumentCaptor = ArgumentCaptor.forClass(Room.class);
+        Mockito.when(roomRepository.save(roomArgumentCaptor.capture())).thenAnswer(it -> {
+            Room room = (Room) it.getArguments()[0];
+            room.setId(roomId);
+            return room;
+        });
+
+        User user = new User();
+        user.setId(200);
+
+        String roomName = UUID.randomUUID() + "<body>";
+        int days = 10;
+
+        ArgumentCaptor<List<RoomRole>> roomRolesCaptor = ArgumentCaptor.forClass(List.class);
+        Mockito.when(roomRoleRepository.saveAll(roomRolesCaptor.capture())).thenAnswer(it -> it.getArguments()[0]);
+
+        ArgumentCaptor<Participant> participantCaptor = ArgumentCaptor.forClass(Participant.class);
+        Mockito.when(participantRepository.save(participantCaptor.capture())).thenAnswer(it -> it.getArguments()[0]);
+
+        Room getRoom = new Room();
+        Mockito.when(roomRepository.findByParticipantAndId(user.getId(), roomId)).thenReturn(getRoom);
+
+        Room createdRoom = roomService.createRoom(user, roomName, null, roleIds, days, role.getId());
+        Assertions.assertEquals(getRoom, createdRoom);
+        
+        Mockito.verify(roomSecretRepository, Mockito.times(1)).save(Mockito.any());
+
+        Room savedRoom = roomArgumentCaptor.getValue();
+        Assertions.assertEquals(HtmlUtils.htmlEscape(roomName), savedRoom.getName());
+        Assertions.assertEquals(user, savedRoom.getAuthor());
+        Assertions.assertNotNull(savedRoom.getCreated());
+        Assertions.assertNotNull(savedRoom.getExpired());
+        Assertions.assertTrue(savedRoom.isVoting());
+
+        List<RoomRole> roomRolesCaptorValue = roomRolesCaptor.getValue();
+        Assertions.assertEquals(2, roomRolesCaptorValue.size());
+        for (RoomRole roomRole : roomRolesCaptorValue) {
+            RoomRoleId roomRoleId = roomRole.getRoomRoleId();
+            Assertions.assertEquals(roomRoleId.getRoom(), savedRoom);
+            if(roomRoleId.getRole() != role && roomRoleId.getRole() != role1) {
+                Assertions.fail("Unknown role");
+            }
+        }
+
+        Participant participant = participantCaptor.getValue();
+        Assertions.assertEquals(participant.getParticipantId().getRoom(), savedRoom);
+        Assertions.assertEquals(participant.getParticipantId().getUser(), user);
+        Assertions.assertEquals(participant.getRole(), role);
+    }
+
+    @Test
+    void testCreateRoom_withSecretCode() {
+        Role role1 = new Role();
+        role1.setId(500);
+
+        Role role = new Role();
+        role.setId(501);
+
+        List<Integer> roleIds = new ArrayList<>();
+        roleIds.add(role1.getId());
+        roleIds.add(role.getId());
+        Mockito.when(roleRepository.findAllByIdIn(roleIds)).thenReturn(Arrays.asList(role1, role));
+
+        int roomId = 100;
+        ArgumentCaptor<Room> roomArgumentCaptor = ArgumentCaptor.forClass(Room.class);
+        Mockito.when(roomRepository.save(roomArgumentCaptor.capture())).thenAnswer(it -> {
+            Room room = (Room) it.getArguments()[0];
+            room.setId(roomId);
+            return room;
+        });
+
+        User user = new User();
+        user.setId(200);
+
+        String roomName = UUID.randomUUID() + "<body>";
+        String secret = UUID.randomUUID().toString();
+        int days = 10;
+
+        ArgumentCaptor<List<RoomRole>> roomRolesCaptor = ArgumentCaptor.forClass(List.class);
+        Mockito.when(roomRoleRepository.saveAll(roomRolesCaptor.capture())).thenAnswer(it -> it.getArguments()[0]);
+
+        ArgumentCaptor<Participant> participantCaptor = ArgumentCaptor.forClass(Participant.class);
+        Mockito.when(participantRepository.save(participantCaptor.capture())).thenAnswer(it -> it.getArguments()[0]);
+
+        Room getRoom = new Room();
+        Mockito.when(roomRepository.findByParticipantAndId(user.getId(), roomId)).thenReturn(getRoom);
+
+        ArgumentCaptor<RoomSecret> roomSecretArgumentCaptor = ArgumentCaptor.forClass(RoomSecret.class);
+        Mockito.when(roomSecretRepository.save(roomSecretArgumentCaptor.capture())).thenAnswer(it -> it.getArguments()[0]);
+
+        Room createdRoom = roomService.createRoom(user, roomName, secret, roleIds, days, role.getId());
+        Assertions.assertEquals(getRoom, createdRoom);
+
+        Room savedRoom = roomArgumentCaptor.getValue();
+        Assertions.assertEquals(HtmlUtils.htmlEscape(roomName), savedRoom.getName());
+        Assertions.assertEquals(user, savedRoom.getAuthor());
+        Assertions.assertNotNull(savedRoom.getCreated());
+        Assertions.assertNotNull(savedRoom.getExpired());
+        Assertions.assertTrue(savedRoom.isVoting());
+
+        RoomSecret roomSecret = roomSecretArgumentCaptor.getValue();
+        Assertions.assertEquals(roomId, roomSecret.getRoomId());
+        Assertions.assertEquals(secret, roomSecret.getSecretCode());
+
+        List<RoomRole> roomRolesCaptorValue = roomRolesCaptor.getValue();
+        Assertions.assertEquals(2, roomRolesCaptorValue.size());
+        for (RoomRole roomRole : roomRolesCaptorValue) {
+            RoomRoleId roomRoleId = roomRole.getRoomRoleId();
+            Assertions.assertEquals(roomRoleId.getRoom(), savedRoom);
+            if(roomRoleId.getRole() != role && roomRoleId.getRole() != role1) {
+                Assertions.fail("Unknown role");
+            }
+        }
+
+        Participant participant = participantCaptor.getValue();
+        Assertions.assertEquals(participant.getParticipantId().getRoom(), savedRoom);
+        Assertions.assertEquals(participant.getParticipantId().getUser(), user);
+        Assertions.assertEquals(participant.getRole(), role);
+    }
 
     @Test
     void testJoinRoom_notFound_room() {

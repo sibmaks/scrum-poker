@@ -107,8 +107,8 @@ class RoomServiceTest {
 
         Room createdRoom = roomService.createRoom(user, roomName, null, roleIds, days, role.getId());
         Assertions.assertEquals(getRoom, createdRoom);
-        
-        Mockito.verify(roomSecretRepository, Mockito.times(1)).save(Mockito.any());
+
+        Mockito.verify(roomSecretRepository, Mockito.never()).save(Mockito.any());
 
         Room savedRoom = roomArgumentCaptor.getValue();
         Assertions.assertEquals(HtmlUtils.htmlEscape(roomName), savedRoom.getName());

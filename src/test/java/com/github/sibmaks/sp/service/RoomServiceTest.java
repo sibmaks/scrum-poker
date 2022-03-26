@@ -140,7 +140,7 @@ class RoomServiceTest {
         role2.setId(roleId + 1);
         RoomRole roomRole2 = new RoomRole();
         roomRole2.setRoomRoleId(new RoomRoleId(room, role2));
-        Mockito.when(roomRoleRepository.findAllByRoomRoleIdRoom(room)).thenReturn(Arrays.asList(roomRole, roomRole2));
+        Mockito.when(roomRoleRepository.findAllByRoomRoleIdRoom(room)).thenReturn(Arrays.asList(roomRole2, roomRole));
 
         Mockito.when(roomSecretRepository.findById(roomId)).thenReturn(Optional.empty());
 

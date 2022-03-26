@@ -91,6 +91,7 @@ class RoomServiceTest {
         String secret = UUID.randomUUID().toString();
 
         Room room = new Room();
+        room.setId(roomId);
         Mockito.when(roomRepository.findById(roomId)).thenReturn(Optional.of(room));
 
         Role role = new Role();
@@ -127,6 +128,7 @@ class RoomServiceTest {
         int roleId = 501;
 
         Room room = new Room();
+        room.setId(roomId);
         Mockito.when(roomRepository.findById(roomId)).thenReturn(Optional.of(room));
 
         Role role = new Role();

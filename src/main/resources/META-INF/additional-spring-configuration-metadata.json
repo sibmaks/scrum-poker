@@ -1,0 +1,14 @@
+{
+  "properties": [
+    {
+      "name": "app.session.ttl.type",
+      "type": "java.time.temporal.ChronoUnit",
+      "description": "User seesion time to live type"
+    },
+    {
+      "name": "app.session.ttl.value",
+      "type": "java.lang.Integer",
+      "description": "User seesion time to live value"
+    }
+  ]
+}

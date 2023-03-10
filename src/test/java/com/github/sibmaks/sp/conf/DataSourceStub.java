@@ -7,12 +7,9 @@ package com.github.sibmaks.sp.conf;
 
 import com.github.sibmaks.sp.fixture.DbInitializer;
 import com.github.sibmaks.sp.fixture.DbPreparer;
-import com.opentable.db.postgres.embedded.PreparedDbProvider;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 
-import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import java.sql.SQLException;
 

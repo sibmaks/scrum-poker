@@ -1,5 +1,5 @@
 plugins {
-	id 'org.springframework.boot' version '2.6.1'
+	id 'org.springframework.boot' version '2.6.14'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 	id 'java'
 	id 'application'
@@ -52,7 +52,7 @@ dependencies {
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 
-	testImplementation "com.opentable.components:otj-pg-embedded:0.13.4"
+	testImplementation "com.opentable.components:otj-pg-embedded:1.0.1"
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 

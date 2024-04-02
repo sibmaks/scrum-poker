@@ -20,6 +20,9 @@ import org.springframework.web.util.HtmlUtils;
 
 import java.util.*;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 /**
  * @author drobyshev-ma
  * Created at 20-01-2022
@@ -27,7 +30,7 @@ import java.util.*;
 @Import(DataSourceStub.class)
 @ActiveProfiles("test")
 @ContextConfiguration
-@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class RoomServiceTest {
     @MockBean
     private RoomRepository roomRepository;
@@ -46,9 +49,10 @@ class RoomServiceTest {
     void testCreateRoom_notFound_roles() {
         List<Integer> roleIds = new ArrayList<>();
         roleIds.add(500);
-        Mockito.when(roleRepository.findAllByIdIn(roleIds)).thenReturn(Collections.emptyList());
+        when(roleRepository.findAllByIdIn(roleIds)).
+                thenReturn(Collections.emptyList());
 
-        Assertions.assertThrows(NotFoundException.class, () -> roomService.createRoom(null, null, null, roleIds, -1, -1));
+        assertThrows(NotFoundException.class, () -> roomService.createRoom(null, null, null, roleIds, -1, -1));
     }
 
     @Test
@@ -56,9 +60,10 @@ class RoomServiceTest {
         List<Integer> roleIds = new ArrayList<>();
         roleIds.add(1);
         roleIds.add(2);
-        Mockito.when(roleRepository.findAllByIdIn(roleIds)).thenReturn(Collections.singletonList(new Role()));
+        when(roleRepository.findAllByIdIn(roleIds)).
+                thenReturn(Collections.singletonList(new Role()));
 
-        Assertions.assertThrows(NotFoundException.class, () -> roomService.createRoom(null, null, null, roleIds, -1, -1));
+        assertThrows(NotFoundException.class, () -> roomService.createRoom(null, null, null, roleIds, -1, -1));
     }
 
     @Test
@@ -72,9 +77,10 @@ class RoomServiceTest {
         List<Integer> roleIds = new ArrayList<>();
         roleIds.add(role1.getId());
         roleIds.add(role.getId());
-        Mockito.when(roleRepository.findAllByIdIn(roleIds)).thenReturn(Arrays.asList(role1, role));
+        when(roleRepository.findAllByIdIn(roleIds)).
+                thenReturn(Arrays.asList(role1, role));
 
-        Assertions.assertThrows(NotFoundException.class, () -> roomService.createRoom(null, null,
+        assertThrows(NotFoundException.class, () -> roomService.createRoom(null, null,
                 null, roleIds, -1, -1));
     }
 
@@ -89,15 +95,17 @@ class RoomServiceTest {
         List<Integer> roleIds = new ArrayList<>();
         roleIds.add(role1.getId());
         roleIds.add(role.getId());
-        Mockito.when(roleRepository.findAllByIdIn(roleIds)).thenReturn(Arrays.asList(role1, role));
+        when(roleRepository.findAllByIdIn(roleIds)).
+                thenReturn(Arrays.asList(role1, role));
 
         int roomId = 100;
         ArgumentCaptor<Room> roomArgumentCaptor = ArgumentCaptor.forClass(Room.class);
-        Mockito.when(roomRepository.save(roomArgumentCaptor.capture())).thenAnswer(it -> {
-            Room room = (Room) it.getArguments()[0];
-            room.setId(roomId);
-            return room;
-        });
+        when(roomRepository.save(roomArgumentCaptor.capture())).
+                thenAnswer(it -> {
+                    Room room = (Room) it.getArguments()[0];
+                    room.setId(roomId);
+                    return room;
+                });
 
         User user = new User();
         user.setId(200);
@@ -106,40 +114,43 @@ class RoomServiceTest {
         int days = 10;
 
         ArgumentCaptor<List<RoomRole>> roomRolesCaptor = ArgumentCaptor.forClass(List.class);
-        Mockito.when(roomRoleRepository.saveAll(roomRolesCaptor.capture())).thenAnswer(it -> it.getArguments()[0]);
+        when(roomRoleRepository.saveAll(roomRolesCaptor.capture())).
+                thenAnswer(it -> it.getArguments()[0]);
 
         ArgumentCaptor<Participant> participantCaptor = ArgumentCaptor.forClass(Participant.class);
-        Mockito.when(participantRepository.save(participantCaptor.capture())).thenAnswer(it -> it.getArguments()[0]);
+        when(participantRepository.save(participantCaptor.capture())).
+                thenAnswer(it -> it.getArguments()[0]);
 
         Room getRoom = new Room();
-        Mockito.when(roomRepository.findByParticipantAndId(user.getId(), roomId)).thenReturn(getRoom);
+        when(roomRepository.findByParticipantAndId(user.getId(), roomId)).
+                thenReturn(getRoom);
 
         Room createdRoom = roomService.createRoom(user, roomName, null, roleIds, days, role.getId());
-        Assertions.assertEquals(getRoom, createdRoom);
+        assertEquals(getRoom, createdRoom);
 
-        Mockito.verify(roomSecretRepository, Mockito.never()).save(Mockito.any());
+        verify(roomSecretRepository, never()).save(any());
 
         Room savedRoom = roomArgumentCaptor.getValue();
-        Assertions.assertEquals(HtmlUtils.htmlEscape(roomName), savedRoom.getName());
-        Assertions.assertEquals(user, savedRoom.getAuthor());
-        Assertions.assertNotNull(savedRoom.getCreated());
-        Assertions.assertNotNull(savedRoom.getExpired());
-        Assertions.assertTrue(savedRoom.isVoting());
+        assertEquals(HtmlUtils.htmlEscape(roomName), savedRoom.getName());
+        assertEquals(user, savedRoom.getAuthor());
+        assertNotNull(savedRoom.getCreated());
+        assertNotNull(savedRoom.getExpired());
+        assertTrue(savedRoom.isVoting());
 
         List<RoomRole> roomRolesCaptorValue = roomRolesCaptor.getValue();
-        Assertions.assertEquals(2, roomRolesCaptorValue.size());
+        assertEquals(2, roomRolesCaptorValue.size());
         for (RoomRole roomRole : roomRolesCaptorValue) {
             RoomRoleId roomRoleId = roomRole.getRoomRoleId();
-            Assertions.assertEquals(roomRoleId.getRoom(), savedRoom);
-            if(roomRoleId.getRole() != role && roomRoleId.getRole() != role1) {
-                Assertions.fail("Unknown role");
+            assertEquals(roomRoleId.getRoom(), savedRoom);
+            if (roomRoleId.getRole() != role && roomRoleId.getRole() != role1) {
+                fail("Unknown role");
             }
         }
 
         Participant participant = participantCaptor.getValue();
-        Assertions.assertEquals(participant.getParticipantId().getRoom(), savedRoom);
-        Assertions.assertEquals(participant.getParticipantId().getUser(), user);
-        Assertions.assertEquals(participant.getRole(), role);
+        assertEquals(participant.getParticipantId().getRoom(), savedRoom);
+        assertEquals(participant.getParticipantId().getUser(), user);
+        assertEquals(participant.getRole(), role);
     }
 
     @Test
@@ -153,15 +164,17 @@ class RoomServiceTest {
         List<Integer> roleIds = new ArrayList<>();
         roleIds.add(role1.getId());
         roleIds.add(role.getId());
-        Mockito.when(roleRepository.findAllByIdIn(roleIds)).thenReturn(Arrays.asList(role1, role));
+        when(roleRepository.findAllByIdIn(roleIds)).
+                thenReturn(Arrays.asList(role1, role));
 
         int roomId = 100;
         ArgumentCaptor<Room> roomArgumentCaptor = ArgumentCaptor.forClass(Room.class);
-        Mockito.when(roomRepository.save(roomArgumentCaptor.capture())).thenAnswer(it -> {
-            Room room = (Room) it.getArguments()[0];
-            room.setId(roomId);
-            return room;
-        });
+        when(roomRepository.save(roomArgumentCaptor.capture())).
+                thenAnswer(it -> {
+                    Room room = (Room) it.getArguments()[0];
+                    room.setId(roomId);
+                    return room;
+                });
 
         User user = new User();
         user.setId(200);
@@ -171,53 +184,58 @@ class RoomServiceTest {
         int days = 10;
 
         ArgumentCaptor<List<RoomRole>> roomRolesCaptor = ArgumentCaptor.forClass(List.class);
-        Mockito.when(roomRoleRepository.saveAll(roomRolesCaptor.capture())).thenAnswer(it -> it.getArguments()[0]);
+        when(roomRoleRepository.saveAll(roomRolesCaptor.capture())).
+                thenAnswer(it -> it.getArguments()[0]);
 
         ArgumentCaptor<Participant> participantCaptor = ArgumentCaptor.forClass(Participant.class);
-        Mockito.when(participantRepository.save(participantCaptor.capture())).thenAnswer(it -> it.getArguments()[0]);
+        when(participantRepository.save(participantCaptor.capture())).
+                thenAnswer(it -> it.getArguments()[0]);
 
         Room getRoom = new Room();
-        Mockito.when(roomRepository.findByParticipantAndId(user.getId(), roomId)).thenReturn(getRoom);
+        when(roomRepository.findByParticipantAndId(user.getId(), roomId)).
+                thenReturn(getRoom);
 
         ArgumentCaptor<RoomSecret> roomSecretArgumentCaptor = ArgumentCaptor.forClass(RoomSecret.class);
-        Mockito.when(roomSecretRepository.save(roomSecretArgumentCaptor.capture())).thenAnswer(it -> it.getArguments()[0]);
+        when(roomSecretRepository.save(roomSecretArgumentCaptor.capture())).
+                thenAnswer(it -> it.getArguments()[0]);
 
         Room createdRoom = roomService.createRoom(user, roomName, secret, roleIds, days, role.getId());
-        Assertions.assertEquals(getRoom, createdRoom);
+        assertEquals(getRoom, createdRoom);
 
         Room savedRoom = roomArgumentCaptor.getValue();
-        Assertions.assertEquals(HtmlUtils.htmlEscape(roomName), savedRoom.getName());
-        Assertions.assertEquals(user, savedRoom.getAuthor());
-        Assertions.assertNotNull(savedRoom.getCreated());
-        Assertions.assertNotNull(savedRoom.getExpired());
-        Assertions.assertTrue(savedRoom.isVoting());
+        assertEquals(HtmlUtils.htmlEscape(roomName), savedRoom.getName());
+        assertEquals(user, savedRoom.getAuthor());
+        assertNotNull(savedRoom.getCreated());
+        assertNotNull(savedRoom.getExpired());
+        assertTrue(savedRoom.isVoting());
 
         RoomSecret roomSecret = roomSecretArgumentCaptor.getValue();
-        Assertions.assertEquals(roomId, roomSecret.getRoomId());
-        Assertions.assertEquals(secret, roomSecret.getSecretCode());
+        assertEquals(roomId, roomSecret.getRoomId());
+        assertEquals(secret, roomSecret.getSecretCode());
 
         List<RoomRole> roomRolesCaptorValue = roomRolesCaptor.getValue();
-        Assertions.assertEquals(2, roomRolesCaptorValue.size());
+        assertEquals(2, roomRolesCaptorValue.size());
         for (RoomRole roomRole : roomRolesCaptorValue) {
             RoomRoleId roomRoleId = roomRole.getRoomRoleId();
-            Assertions.assertEquals(roomRoleId.getRoom(), savedRoom);
-            if(roomRoleId.getRole() != role && roomRoleId.getRole() != role1) {
-                Assertions.fail("Unknown role");
+            assertEquals(roomRoleId.getRoom(), savedRoom);
+            if (roomRoleId.getRole() != role && roomRoleId.getRole() != role1) {
+                fail("Unknown role");
             }
         }
 
         Participant participant = participantCaptor.getValue();
-        Assertions.assertEquals(participant.getParticipantId().getRoom(), savedRoom);
-        Assertions.assertEquals(participant.getParticipantId().getUser(), user);
-        Assertions.assertEquals(participant.getRole(), role);
+        assertEquals(participant.getParticipantId().getRoom(), savedRoom);
+        assertEquals(participant.getParticipantId().getUser(), user);
+        assertEquals(participant.getRole(), role);
     }
 
     @Test
     void testJoinRoom_notFound_room() {
         long roomId = 500;
-        Mockito.when(roomRepository.findById(roomId)).thenReturn(Optional.empty());
+        when(roomRepository.findById(roomId)).
+                thenReturn(Optional.empty());
 
-        Assertions.assertThrows(NotFoundException.class, () -> roomService.joinRoom(null, roomId, -1, null));
+        assertThrows(NotFoundException.class, () -> roomService.joinRoom(null, roomId, -1, null));
     }
 
     @Test
@@ -226,10 +244,12 @@ class RoomServiceTest {
         int roleId = 501;
 
         Room room = new Room();
-        Mockito.when(roomRepository.findById(roomId)).thenReturn(Optional.of(room));
-        Mockito.when(roomRoleRepository.findAllByRoomRoleIdRoom(room)).thenReturn(Collections.emptyList());
+        when(roomRepository.findById(roomId)).
+                thenReturn(Optional.of(room));
+        when(roomRoleRepository.findAllByRoomRoleIdRoom(room)).
+                thenReturn(Collections.emptyList());
 
-        Assertions.assertThrows(NotFoundException.class, () -> roomService.joinRoom(null, roomId, roleId, null));
+        assertThrows(NotFoundException.class, () -> roomService.joinRoom(null, roomId, roleId, null));
     }
 
     @Test
@@ -239,19 +259,22 @@ class RoomServiceTest {
         String secret = UUID.randomUUID().toString();
 
         Room room = new Room();
-        Mockito.when(roomRepository.findById(roomId)).thenReturn(Optional.of(room));
+        when(roomRepository.findById(roomId)).
+                thenReturn(Optional.of(room));
 
         Role role = new Role();
         role.setId(roleId);
         RoomRole roomRole = new RoomRole();
         roomRole.setRoomRoleId(new RoomRoleId(room, role));
-        Mockito.when(roomRoleRepository.findAllByRoomRoleIdRoom(room)).thenReturn(Collections.singletonList(roomRole));
+        when(roomRoleRepository.findAllByRoomRoleIdRoom(room)).
+                thenReturn(Collections.singletonList(roomRole));
 
         RoomSecret roomSecret = new RoomSecret();
         roomSecret.setSecretCode(secret + 1);
-        Mockito.when(roomSecretRepository.findById(roomId)).thenReturn(Optional.of(roomSecret));
+        when(roomSecretRepository.findById(roomId)).
+                thenReturn(Optional.of(roomSecret));
 
-        Assertions.assertThrows(WrongSecretCodeException.class, () -> roomService.joinRoom(null, roomId, roleId, secret));
+        assertThrows(WrongSecretCodeException.class, () -> roomService.joinRoom(null, roomId, roleId, secret));
     }
 
     @Test
@@ -262,34 +285,39 @@ class RoomServiceTest {
 
         Room room = new Room();
         room.setId(roomId);
-        Mockito.when(roomRepository.findById(roomId)).thenReturn(Optional.of(room));
+        when(roomRepository.findById(roomId)).
+                thenReturn(Optional.of(room));
 
         Role role = new Role();
         role.setId(roleId);
         RoomRole roomRole = new RoomRole();
         roomRole.setRoomRoleId(new RoomRoleId(room, role));
-        Mockito.when(roomRoleRepository.findAllByRoomRoleIdRoom(room)).thenReturn(Collections.singletonList(roomRole));
+        when(roomRoleRepository.findAllByRoomRoleIdRoom(room)).
+                thenReturn(Collections.singletonList(roomRole));
 
         RoomSecret roomSecret = new RoomSecret();
         roomSecret.setSecretCode(secret);
-        Mockito.when(roomSecretRepository.findById(roomId)).thenReturn(Optional.of(roomSecret));
+        when(roomSecretRepository.findById(roomId)).
+                thenReturn(Optional.of(roomSecret));
 
         User user = new User();
         user.setId(100);
 
         ArgumentCaptor<Participant> participantArgumentCaptor = ArgumentCaptor.forClass(Participant.class);
-        Mockito.when(participantRepository.save(participantArgumentCaptor.capture())).thenAnswer(it -> it.getArguments()[0]);
+        when(participantRepository.save(participantArgumentCaptor.capture())).
+                thenAnswer(it -> it.getArguments()[0]);
 
         Room getRoom = new Room();
-        Mockito.when(roomRepository.findByParticipantAndId(user.getId(), roomId)).thenReturn(getRoom);
+        when(roomRepository.findByParticipantAndId(user.getId(), roomId)).
+                thenReturn(getRoom);
 
         Room joinRoom = roomService.joinRoom(user, roomId, roleId, secret);
-        Assertions.assertEquals(getRoom, joinRoom);
+        assertEquals(getRoom, joinRoom);
 
         Participant participant = participantArgumentCaptor.getValue();
-        Assertions.assertEquals(participant.getParticipantId().getRoom(), room);
-        Assertions.assertEquals(participant.getParticipantId().getUser(), user);
-        Assertions.assertEquals(participant.getRole(), role);
+        assertEquals(participant.getParticipantId().getRoom(), room);
+        assertEquals(participant.getParticipantId().getUser(), user);
+        assertEquals(participant.getRole(), role);
     }
 
     @Test
@@ -299,7 +327,8 @@ class RoomServiceTest {
 
         Room room = new Room();
         room.setId(roomId);
-        Mockito.when(roomRepository.findById(roomId)).thenReturn(Optional.of(room));
+        when(roomRepository.findById(roomId)).
+                thenReturn(Optional.of(room));
 
         Role role = new Role();
         role.setId(roleId);
@@ -310,42 +339,48 @@ class RoomServiceTest {
         role2.setId(roleId + 1);
         RoomRole roomRole2 = new RoomRole();
         roomRole2.setRoomRoleId(new RoomRoleId(room, role2));
-        Mockito.when(roomRoleRepository.findAllByRoomRoleIdRoom(room)).thenReturn(Arrays.asList(roomRole2, roomRole));
+        when(roomRoleRepository.findAllByRoomRoleIdRoom(room)).
+                thenReturn(Arrays.asList(roomRole2, roomRole));
 
-        Mockito.when(roomSecretRepository.findById(roomId)).thenReturn(Optional.empty());
+        when(roomSecretRepository.findById(roomId)).
+                thenReturn(Optional.empty());
 
         User user = new User();
         user.setId(100);
 
         ArgumentCaptor<Participant> participantArgumentCaptor = ArgumentCaptor.forClass(Participant.class);
-        Mockito.when(participantRepository.save(participantArgumentCaptor.capture())).thenAnswer(it -> it.getArguments()[0]);
+        when(participantRepository.save(participantArgumentCaptor.capture())).
+                thenAnswer(it -> it.getArguments()[0]);
 
         Room getRoom = new Room();
-        Mockito.when(roomRepository.findByParticipantAndId(user.getId(), roomId)).thenReturn(getRoom);
+        when(roomRepository.findByParticipantAndId(user.getId(), roomId)).
+                thenReturn(getRoom);
 
         Room joinRoom = roomService.joinRoom(user, roomId, roleId, null);
-        Assertions.assertEquals(getRoom, joinRoom);
+        assertEquals(getRoom, joinRoom);
 
         Participant participant = participantArgumentCaptor.getValue();
-        Assertions.assertEquals(participant.getParticipantId().getRoom(), room);
-        Assertions.assertEquals(participant.getParticipantId().getUser(), user);
-        Assertions.assertEquals(participant.getRole(), role);
+        assertEquals(participant.getParticipantId().getRoom(), room);
+        assertEquals(participant.getParticipantId().getUser(), user);
+        assertEquals(participant.getRole(), role);
     }
 
     @Test
     void testGetRooms() {
         int userId = 42;
         List<Room> rooms = Collections.singletonList(new Room());
-        Mockito.when(roomService.getRooms(42)).thenReturn(rooms);
-        Assertions.assertEquals(rooms, roomService.getRooms(userId));
+        when(roomService.getRooms(42)).
+                thenReturn(rooms);
+        assertEquals(rooms, roomService.getRooms(userId));
     }
 
     @Test
     void testGetParticipantCount() {
         long participants = 100;
         Room room = new Room();
-        Mockito.when(roomService.getParticipantCount(room)).thenReturn(participants);
-        Assertions.assertEquals(participants, roomService.getParticipantCount(room));
+        when(roomService.getParticipantCount(room)).
+                thenReturn(participants);
+        assertEquals(participants, roomService.getParticipantCount(room));
     }
 
     @Test
@@ -355,9 +390,10 @@ class RoomServiceTest {
         int roomId = 42;
         Room room = new Room();
 
-        Mockito.when(roomRepository.findByParticipantAndId(user.getId(), roomId)).thenReturn(room);
+        when(roomRepository.findByParticipantAndId(user.getId(), roomId)).
+                thenReturn(room);
 
-        Assertions.assertEquals(room, roomService.getRoom(user, roomId));
+        assertEquals(room, roomService.getRoom(user, roomId));
     }
 
     @Test
@@ -367,19 +403,21 @@ class RoomServiceTest {
         int roomId = 42;
         Room room = new Room();
 
-        Mockito.when(roomRepository.findByParticipantAndId(user.getId(), roomId)).thenReturn(room);
+        when(roomRepository.findByParticipantAndId(user.getId(), roomId)).
+                thenReturn(room);
 
         roomService.leaveRoom(user, roomId);
 
-        Mockito.verify(participantRepository, Mockito.times(1)).deleteByParticipantIdUserAndParticipantIdRoom(user, room);
+        verify(participantRepository, times(1)).deleteByParticipantIdUserAndParticipantIdRoom(user, room);
     }
 
     @Test
     void testVote_notFound() {
         long roomId = 42;
-        Mockito.when(roomRepository.findById(roomId)).thenReturn(Optional.empty());
+        when(roomRepository.findById(roomId)).
+                thenReturn(Optional.empty());
         User user = new User();
-        Assertions.assertThrows(NotFoundException.class, () -> roomService.vote(user, roomId, "score"));
+        assertThrows(NotFoundException.class, () -> roomService.vote(user, roomId, "score"));
     }
 
     @Test
@@ -387,12 +425,14 @@ class RoomServiceTest {
         Room room = new Room();
         room.setId(42);
 
-        Mockito.when(roomRepository.findById(room.getId())).thenReturn(Optional.of(room));
-        Mockito.when(participantRepository.findByParticipantId(Mockito.any())).thenReturn(Optional.empty());
+        when(roomRepository.findById(room.getId())).
+                thenReturn(Optional.of(room));
+        when(participantRepository.findByParticipantId(any())).
+                thenReturn(Optional.empty());
 
         User user = new User();
         long roomId = room.getId();
-        Assertions.assertThrows(NotAllowedException.class, () -> roomService.vote(user, roomId, "score"));
+        assertThrows(NotAllowedException.class, () -> roomService.vote(user, roomId, "score"));
     }
 
     @Test
@@ -403,15 +443,17 @@ class RoomServiceTest {
         room.setId(42);
         room.setVoting(false);
 
-        Mockito.when(roomRepository.findById(room.getId())).thenReturn(Optional.of(room));
+        when(roomRepository.findById(room.getId())).
+                thenReturn(Optional.of(room));
 
         Participant participant = new Participant();
         participant.setParticipantId(new ParticipantId(user, room));
 
-        Mockito.when(participantRepository.findByParticipantId(Mockito.any())).thenReturn(Optional.of(participant));
+        when(participantRepository.findByParticipantId(any())).
+                thenReturn(Optional.of(participant));
 
         long roomId = room.getId();
-        Assertions.assertThrows(NotAllowedException.class, () -> roomService.vote(user, roomId, "score"));
+        assertThrows(NotAllowedException.class, () -> roomService.vote(user, roomId, "score"));
     }
 
     @Test
@@ -423,20 +465,22 @@ class RoomServiceTest {
         room.setId(42);
         room.setVoting(true);
 
-        Mockito.when(roomRepository.findById(room.getId())).thenReturn(Optional.of(room));
+        when(roomRepository.findById(room.getId())).
+                thenReturn(Optional.of(room));
 
         Participant participant = new Participant();
         participant.setParticipantId(new ParticipantId(user, room));
 
-        Mockito.when(participantRepository.findByParticipantId(Mockito.any())).thenReturn(Optional.of(participant));
+        when(participantRepository.findByParticipantId(any())).
+                thenReturn(Optional.of(participant));
 
         roomService.vote(user, room.getId(), score);
 
         ArgumentCaptor<Participant> captor = ArgumentCaptor.forClass(Participant.class);
-        Mockito.verify(participantRepository, Mockito.times(1)).save(captor.capture());
+        verify(participantRepository, times(1)).save(captor.capture());
 
         Participant savedParticipant = captor.getValue();
-        Assertions.assertEquals(score, savedParticipant.getScore());
+        assertEquals(score, savedParticipant.getScore());
     }
 
     @Test
@@ -444,17 +488,19 @@ class RoomServiceTest {
         Room room = new Room();
 
         List<Participant> participants = Collections.singletonList(new Participant());
-        Mockito.when(participantRepository.findAllByParticipantIdRoom(room)).thenReturn(participants);
+        when(participantRepository.findAllByParticipantIdRoom(room)).
+                thenReturn(participants);
 
-        Assertions.assertEquals(participants, roomService.getParticipants(room));
+        assertEquals(participants, roomService.getParticipants(room));
     }
 
     @Test
     void testSetVoting_notExists() {
         long roomId = 42;
-        Mockito.when(roomRepository.findById(roomId)).thenReturn(Optional.empty());
+        when(roomRepository.findById(roomId)).
+                thenReturn(Optional.empty());
         User user = new User();
-        Assertions.assertThrows(NotFoundException.class, () -> roomService.setVoting(user, roomId, true));
+        assertThrows(NotFoundException.class, () -> roomService.setVoting(user, roomId, true));
     }
 
     @Test
@@ -470,8 +516,9 @@ class RoomServiceTest {
         room.setAuthor(author);
 
         long roomId = room.getId();
-        Mockito.when(roomRepository.findById(roomId)).thenReturn(Optional.of(room));
-        Assertions.assertThrows(NotAllowedException.class, () -> roomService.setVoting(user, roomId, true));
+        when(roomRepository.findById(roomId)).
+                thenReturn(Optional.of(room));
+        assertThrows(NotAllowedException.class, () -> roomService.setVoting(user, roomId, true));
     }
 
     @Test
@@ -483,13 +530,15 @@ class RoomServiceTest {
         room.setId(43);
         room.setAuthor(user);
 
-        Mockito.when(roomRepository.findById(room.getId())).thenReturn(Optional.of(room));
-        Mockito.when(roomRepository.save(Mockito.any())).thenAnswer(it -> it.getArguments()[0]);
+        when(roomRepository.findById(room.getId())).
+                thenReturn(Optional.of(room));
+        when(roomRepository.save(any())).
+                thenAnswer(it -> it.getArguments()[0]);
 
         Room setVoting = roomService.setVoting(user, room.getId(), true);
-        Assertions.assertEquals(room, setVoting);
+        assertEquals(room, setVoting);
 
-        Mockito.verify(participantRepository, Mockito.times(1)).resetScore(room);
+        verify(participantRepository, times(1)).resetScore(room);
     }
 
     @Test
@@ -501,13 +550,15 @@ class RoomServiceTest {
         room.setId(43);
         room.setAuthor(user);
 
-        Mockito.when(roomRepository.findById(room.getId())).thenReturn(Optional.of(room));
-        Mockito.when(roomRepository.save(Mockito.any())).thenAnswer(it -> it.getArguments()[0]);
+        when(roomRepository.findById(room.getId())).
+                thenReturn(Optional.of(room));
+        when(roomRepository.save(any())).
+                thenAnswer(it -> it.getArguments()[0]);
 
         Room setVoting = roomService.setVoting(user, room.getId(), false);
-        Assertions.assertEquals(room, setVoting);
+        assertEquals(room, setVoting);
 
-        Mockito.verify(participantRepository, Mockito.never()).resetScore(room);
+        verify(participantRepository, never()).resetScore(room);
     }
 
     @Test
@@ -515,32 +566,36 @@ class RoomServiceTest {
         long roomId = 42;
 
         List<Role> roles = Collections.singletonList(new Role());
-        Mockito.when(roleRepository.findAllForRoom(roomId)).thenReturn(roles);
+        when(roleRepository.findAllForRoom(roomId)).
+                thenReturn(roles);
 
-        Assertions.assertEquals(roles, roomService.getRoles(roomId));
+        assertEquals(roles, roomService.getRoles(roomId));
     }
 
     @Test
     void testGetRoles() {
         List<Role> roles = Collections.singletonList(new Role());
-        Mockito.when(roleRepository.findAllByOrderById()).thenReturn(roles);
-        Assertions.assertEquals(roles, roomService.getRoles());
+        when(roleRepository.findAllByOrderById()).
+                thenReturn(roles);
+        assertEquals(roles, roomService.getRoles());
     }
 
     @Test
     void testHasSecret() {
         long roomId = 42;
 
-        Mockito.when(roomSecretRepository.existsById(roomId)).thenReturn(true);
-        Assertions.assertTrue(roomService.hasSecret(roomId));
+        when(roomSecretRepository.existsById(roomId)).
+                thenReturn(true);
+        assertTrue(roomService.hasSecret(roomId));
     }
 
     @Test
     void testHasSecret_false() {
         long roomId = 42;
 
-        Mockito.when(roomSecretRepository.existsById(roomId)).thenReturn(false);
-        Assertions.assertFalse(roomService.hasSecret(roomId));
+        when(roomSecretRepository.existsById(roomId)).
+                thenReturn(false);
+        assertFalse(roomService.hasSecret(roomId));
     }
 
     @Test
@@ -554,11 +609,12 @@ class RoomServiceTest {
 
         RoomSecret roomSecret = new RoomSecret();
         roomSecret.setSecretCode("123");
-        Mockito.when(roomSecretRepository.findById(room.getId())).thenReturn(Optional.of(roomSecret));
+        when(roomSecretRepository.findById(room.getId())).
+                thenReturn(Optional.of(roomSecret));
 
-        Assertions.assertEquals(roomSecret.getSecretCode(), roomService.getSecret(user, room));
+        assertEquals(roomSecret.getSecretCode(), roomService.getSecret(user, room));
 
-        Mockito.verify(roomSecretRepository, Mockito.times(1)).findById(room.getId());
+        verify(roomSecretRepository, times(1)).findById(room.getId());
     }
 
     @Test
@@ -575,9 +631,10 @@ class RoomServiceTest {
 
         RoomSecret roomSecret = new RoomSecret();
         roomSecret.setSecretCode("123");
-        Mockito.when(roomSecretRepository.findById(room.getId())).thenReturn(Optional.of(roomSecret));
+        when(roomSecretRepository.findById(room.getId())).
+                thenReturn(Optional.of(roomSecret));
 
-        Assertions.assertNull(roomService.getSecret(user, room));
-        Mockito.verify(roomSecretRepository, Mockito.never()).findById(room.getId());
+        assertNull(roomService.getSecret(user, room));
+        verify(roomSecretRepository, never()).findById(room.getId());
     }
 }

@@ -1,0 +1,24 @@
+{
+  "groups": [
+    {
+      "name": "app.session.ttl",
+      "type": "com.github.sibmaks.sp.conf.SessionTtlProperties",
+      "sourceType": "com.github.sibmaks.sp.conf.SessionTtlProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "app.session.ttl.type",
+      "type": "java.time.temporal.ChronoUnit",
+      "description": "User session time to live type.",
+      "sourceType": "com.github.sibmaks.sp.conf.SessionTtlProperties"
+    },
+    {
+      "name": "app.session.ttl.value",
+      "type": "java.lang.Integer",
+      "description": "User session time to live value.",
+      "sourceType": "com.github.sibmaks.sp.conf.SessionTtlProperties"
+    }
+  ],
+  "hints": []
+}

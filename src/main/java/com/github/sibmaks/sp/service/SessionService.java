@@ -1,18 +1,17 @@
 package com.github.sibmaks.sp.service;
 
+import com.github.sibmaks.sp.conf.SessionTtlProperties;
 import com.github.sibmaks.sp.domain.ClientSession;
 import com.github.sibmaks.sp.domain.User;
 import com.github.sibmaks.sp.exception.NotFoundException;
 import com.github.sibmaks.sp.repository.ClientSessionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
@@ -27,10 +26,7 @@ import java.util.UUID;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class SessionService {
     private final ClientSessionRepository clientSessionRepository;
-    @Value("${app.session.ttl.type}")
-    private ChronoUnit sessionTTLType;
-    @Value("${app.session.ttl.value}")
-    private int sessionTTLValue;
+    private final SessionTtlProperties sessionTtlProperties;
 
     /**
      * Create session for passed user.
@@ -63,7 +59,7 @@ public class SessionService {
      */
     private Date getValidToDate(Date createdAt) {
         return Date.from(ZonedDateTime.ofInstant(createdAt.toInstant(), ZoneId.systemDefault())
-                .plus(sessionTTLValue, sessionTTLType)
+                .plus(sessionTtlProperties.getValue(), sessionTtlProperties.getType())
                 .toInstant());
     }
 
@@ -81,13 +77,13 @@ public class SessionService {
     }
 
     /**
-     *  Check is session id belong to authorized session or not.
+     * Check is session id belong to authorized session or not.
      *
      * @param sessionId session identifier
-     * @return session is exists and valid or not
+     * @return session exists and valid or not
      */
     public boolean isAuthorized(String sessionId) {
-        if(sessionId == null) {
+        if (sessionId == null) {
             return false;
         }
         return clientSessionRepository.existsById(sessionId);
@@ -100,7 +96,7 @@ public class SessionService {
      * @param sessionId session identifier
      */
     public void logout(String sessionId) {
-        if(sessionId != null) {
+        if (sessionId != null) {
             clientSessionRepository.deleteById(sessionId);
         }
     }

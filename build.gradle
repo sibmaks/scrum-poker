@@ -7,8 +7,6 @@ plugins {
 	id 'jacoco'
 }
 
-sourceCompatibility = "${jdk_version}"
-
 sonarqube {
 	properties {
 		property "sonar.projectKey", "sibmaks_scrum-poker"
@@ -19,13 +17,9 @@ sonarqube {
 	}
 }
 
-jacocoTestReport {
-	reports {
-		xml.enabled true
-	}
+java {
+	sourceCompatibility = jdk_version
 }
-
-test.finalizedBy jacocoTestReport
 
 configurations {
 	compileOnly {
@@ -52,6 +46,9 @@ dependencies {
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 
+	testCompileOnly 'org.projectlombok:lombok'
+	testAnnotationProcessor 'org.projectlombok:lombok'
+
 	testImplementation group: 'com.opentable.components', name: 'otj-pg-embedded', version: lib_otg_pg_embedded_version
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
@@ -59,10 +56,11 @@ dependencies {
 	testImplementation  group: 'org.mockito', name: 'mockito-junit-jupiter', version: lib_mockito_version
 }
 
-tasks.register('release', Copy) {
-	println 'We release now'
-}
-
 test {
 	useJUnitPlatform()
+	finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+	dependsOn test
 }

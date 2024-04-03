@@ -52,8 +52,8 @@ dependencies {
 	testImplementation group: 'com.opentable.components', name: 'otj-pg-embedded', version: lib_otg_pg_embedded_version
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
-	testImplementation  group: 'org.mockito', name: 'mockito-core', version: lib_mockito_version
-	testImplementation  group: 'org.mockito', name: 'mockito-junit-jupiter', version: lib_mockito_version
+	testImplementation 'org.mockito:mockito-core'
+	testImplementation 'org.mockito:mockito-junit-jupiter'
 }
 
 test {
@@ -62,5 +62,8 @@ test {
 }
 
 jacocoTestReport {
+	reports {
+		xml.enabled true
+	}
 	dependsOn test
 }

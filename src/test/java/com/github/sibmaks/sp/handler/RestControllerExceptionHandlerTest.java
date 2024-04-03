@@ -1,20 +1,24 @@
 package com.github.sibmaks.sp.handler;
 
 import com.github.sibmaks.sp.api.constant.ApiResultCode;
+import com.github.sibmaks.sp.api.entity.ValidationError;
 import com.github.sibmaks.sp.api.response.StandardResponse;
 import com.github.sibmaks.sp.api.response.ValidationErrorResponse;
 import com.github.sibmaks.sp.exception.NotFoundException;
 import com.github.sibmaks.sp.exception.ValidationErrorException;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.core.MethodParameter;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.util.Collections;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author drobyshev-ma
@@ -29,10 +33,10 @@ class RestControllerExceptionHandlerTest {
     }
 
     @Test
-     void testOnException() {
+    void testOnException() {
         Exception e = new Exception();
         StandardResponse standardResponse = handler.onException(e);
-        Assertions.assertEquals(standardResponse.getResultCode(), ApiResultCode.UNEXPECTED_ERROR.code);
+        assertEquals(standardResponse.getResultCode(), ApiResultCode.UNEXPECTED_ERROR.code);
     }
 
     @Test
@@ -43,37 +47,49 @@ class RestControllerExceptionHandlerTest {
             }
         }
 
-        MethodParameter methodParameter = new MethodParameter(StubValidator.class.getDeclaredMethod("method", String.class), 0);
-        BindingResult bindingResult = Mockito.mock(BindingResult.class);
-        FieldError fieldError = Mockito.mock(FieldError.class);
-        Mockito.when(fieldError.getField()).thenReturn("fieldName");
-        Mockito.when(fieldError.getDefaultMessage()).thenReturn("Error message");
-        Mockito.when(bindingResult.getFieldErrors()).thenReturn(Collections.singletonList(fieldError));
+        MethodParameter methodParameter = new MethodParameter(
+                StubValidator.class.getDeclaredMethod("method", String.class),
+                0
+        );
+        BindingResult bindingResult = mock(BindingResult.class);
+        FieldError fieldError = mock(FieldError.class);
+        when(fieldError.getField()).
+                thenReturn("fieldName");
+        when(fieldError.getDefaultMessage()).
+                thenReturn("Error message");
+        when(bindingResult.getFieldErrors()).
+                thenReturn(Collections.singletonList(fieldError));
 
         MethodArgumentNotValidException e = new MethodArgumentNotValidException(methodParameter, bindingResult);
         ValidationErrorResponse response = handler.onMethodArgumentNotValidException(e);
-        Assertions.assertEquals(response.getResultCode(), ApiResultCode.VALIDATION_ERROR.code);
-        Assertions.assertEquals(1, response.getValidationErrors().size());
+        assertEquals(response.getResultCode(), ApiResultCode.VALIDATION_ERROR.code);
 
-        Assertions.assertEquals("fieldName", response.getValidationErrors().get(0).getField());
-        Assertions.assertEquals("Error message", response.getValidationErrors().get(0).getMessage());
+        List<ValidationError> validationErrors = response.getValidationErrors();
+        assertEquals(1, validationErrors.size());
+
+        ValidationError validationError = validationErrors.get(0);
+        assertEquals("fieldName", validationError.getField());
+        assertEquals("Error message", validationError.getMessage());
     }
 
     @Test
     void testOnValidationErrorException() {
         ValidationErrorException e = new ValidationErrorException("fieldName", "error message");
         ValidationErrorResponse response = handler.onValidException(e);
-        Assertions.assertEquals(response.getResultCode(), ApiResultCode.VALIDATION_ERROR.code);
-        Assertions.assertEquals(1, response.getValidationErrors().size());
+        assertEquals(response.getResultCode(), ApiResultCode.VALIDATION_ERROR.code);
 
-        Assertions.assertEquals("fieldName", response.getValidationErrors().get(0).getField());
-        Assertions.assertEquals("error message", response.getValidationErrors().get(0).getMessage());
+        List<ValidationError> validationErrors = response.getValidationErrors();
+        assertEquals(1, validationErrors.size());
+
+        ValidationError validationError = validationErrors.get(0);
+        assertEquals("fieldName", validationError.getField());
+        assertEquals("error message", validationError.getMessage());
     }
 
     @Test
     void testOnServiceException() {
         NotFoundException e = new NotFoundException();
         StandardResponse standardResponse = handler.onServiceException(e);
-        Assertions.assertEquals(standardResponse.getResultCode(), e.getApiResultCode().code);
+        assertEquals(standardResponse.getResultCode(), e.getApiResultCode().code);
     }
 }

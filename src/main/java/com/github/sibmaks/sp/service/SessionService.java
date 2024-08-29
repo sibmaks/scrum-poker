@@ -40,7 +40,7 @@ public class SessionService {
 
         Date validTo = getValidToDate(createdAt);
 
-        ClientSession clientSession = ClientSession.builder()
+        var clientSession = ClientSession.builder()
                 .sessionId(UUID.randomUUID().toString())
                 .userId(user.getId())
                 .createdAt(createdAt)

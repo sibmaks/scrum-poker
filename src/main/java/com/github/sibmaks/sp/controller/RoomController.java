@@ -47,12 +47,12 @@ public class RoomController {
     @PostMapping(value = "createRoom", consumes = MediaType.APPLICATION_JSON_VALUE)
     public StandardResponse createRoom(@RequestHeader(CommonConstant.HEADER_SESSION_ID) String sessionId,
                                        @RequestBody @Validated CreateRoomRequest request) {
-        User user = getUserOrUnauthorized(sessionId);
-        String secretCode = request.getSecretCode();
+        var user = getUserOrUnauthorized(sessionId);
+        var secretCode = request.getSecretCode();
         if(secretCode != null && (secretCode.length() < 4 || secretCode.length() > 128)) {
             throw new ValidationErrorException("secretCode", "size must be between 4 and 128");
         }
-        Room room = roomService.createRoom(user, request.getName(), secretCode, request.getRoles(), request.getDays(),
+        var room = roomService.createRoom(user, request.getName(), secretCode, request.getRoles(), request.getDays(),
                 request.getRoleId());
         return new CreateRoomResponse(room);
     }
@@ -69,8 +69,8 @@ public class RoomController {
     @PostMapping(value = "join", consumes = MediaType.APPLICATION_JSON_VALUE)
     public StandardResponse join(@RequestHeader(CommonConstant.HEADER_SESSION_ID) String sessionId,
                                        @RequestBody @Validated JoinRoomRequest request) {
-        User user = getUserOrUnauthorized(sessionId);
-        Room room = roomService.joinRoom(user, request.getRoomId(), request.getRoleId(), request.getSecretCode());
+        var user = getUserOrUnauthorized(sessionId);
+        var room = roomService.joinRoom(user, request.getRoomId(), request.getRoleId(), request.getSecretCode());
         return new JoinRoomResponse(room);
     }
 
@@ -88,7 +88,7 @@ public class RoomController {
     @PostMapping(value = "leave", consumes = MediaType.APPLICATION_JSON_VALUE)
     public StandardResponse leave(@RequestHeader(CommonConstant.HEADER_SESSION_ID) String sessionId,
                                        @RequestBody @Validated LeaveRoomRequest request) {
-        User user = getUserOrUnauthorized(sessionId);
+        var user = getUserOrUnauthorized(sessionId);
         roomService.leaveRoom(user, request.getRoomId());
         return new StandardResponse();
     }
@@ -108,7 +108,7 @@ public class RoomController {
     @PostMapping(value = "vote", consumes = MediaType.APPLICATION_JSON_VALUE)
     public StandardResponse vote(@RequestHeader(CommonConstant.HEADER_SESSION_ID) String sessionId,
                                        @RequestBody @Validated VoteRoomRequest request) {
-        User user = getUserOrUnauthorized(sessionId);
+        var user = getUserOrUnauthorized(sessionId);
         roomService.vote(user, request.getRoomId(), request.getScore());
         return new StandardResponse();
     }
@@ -128,8 +128,8 @@ public class RoomController {
     @PostMapping(value = "setVoting", consumes = MediaType.APPLICATION_JSON_VALUE)
     public StandardResponse setVoting(@RequestHeader(CommonConstant.HEADER_SESSION_ID) String sessionId,
                                        @RequestBody @Validated SetVotingRoomRequest request) {
-        User user = getUserOrUnauthorized(sessionId);
-        Room room = roomService.setVoting(user, request.getRoomId(), request.isVoting());
+        var user = getUserOrUnauthorized(sessionId);
+        var room = roomService.setVoting(user, request.getRoomId(), request.isVoting());
         List<Participant> participants = roomService.getParticipants(room);
         return new GetRoomResponse(user, room, participants);
     }
@@ -149,8 +149,8 @@ public class RoomController {
     @PostMapping(value = "getRoom", consumes = MediaType.APPLICATION_JSON_VALUE)
     public StandardResponse getRoom(@RequestHeader(CommonConstant.HEADER_SESSION_ID) String sessionId,
                                     @RequestBody @Validated GetRoomRequest request) {
-        User user = getUserOrUnauthorized(sessionId);
-        Room room = roomService.getRoom(user, request.getRoomId());
+        var user = getUserOrUnauthorized(sessionId);
+        var room = roomService.getRoom(user, request.getRoomId());
         if(room == null) {
             throw new NotFoundException();
         }

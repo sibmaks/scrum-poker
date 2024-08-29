@@ -34,7 +34,7 @@ public class GetRoomResponse extends StandardResponse {
                 .map(it -> buildGroupInfo(it, room.isVoting()))
                 .collect(Collectors.toList());
 
-        Participant participant = participants.stream()
+        var participant = participants.stream()
                 .filter(it -> it.getParticipantId().getUser().getId() == user.getId())
                 .findFirst()
                 .orElseThrow(NotAllowedException::new);
@@ -50,12 +50,12 @@ public class GetRoomResponse extends StandardResponse {
     }
 
     private GroupInfo buildGroupInfo(Map.Entry<Role, List<Participant>> entry, boolean voting) {
-        GroupInfo groupInfo = new GroupInfo();
+        var groupInfo = new GroupInfo();
         groupInfo.setName(entry.getKey().getName());
         groupInfo.setParticipantInfos(new ArrayList<>());
         for (Participant participant : entry.getValue()) {
-            User user = participant.getParticipantId().getUser();
-            ParticipantInfo participantInfo = ParticipantInfo.builder()
+            var user = participant.getParticipantId().getUser();
+            var participantInfo = ParticipantInfo.builder()
                     .id(user.getId())
                     .name(user.getLastName() + " " + user.getFirstName())
                     .voted(participant.getScore() != null)

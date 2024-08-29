@@ -6,7 +6,6 @@ import org.postgresql.ds.PGSimpleDataSource;
 import org.springframework.beans.factory.annotation.Value;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
@@ -23,12 +22,16 @@ public class DbPreparer implements DatabasePreparer {
 
     @Override
     public void prepare(DataSource ds) throws SQLException {
-        PGSimpleDataSource simpleDataSource = (PGSimpleDataSource) ds;
-        try(Connection connection = ds.getConnection()) {
-            connection.prepareStatement(CLEAN_PUBLIC).execute();
-            connection.prepareStatement(String.format(CLEAN_FORMAT, schema, schema)).execute();
-            connection.prepareStatement(String.format(SELECT_FORMAT, simpleDataSource.getUser(), schema)).execute();
+        var simpleDataSource = (PGSimpleDataSource) ds;
+        try(var connection = ds.getConnection()) {
+            connection.prepareStatement(CLEAN_PUBLIC)
+                    .execute();
+            connection.prepareStatement(String.format(CLEAN_FORMAT, schema, schema))
+                    .execute();
+            connection.prepareStatement(String.format(SELECT_FORMAT, simpleDataSource.getUser(), schema))
+                    .execute();
         }
-        FlywayPreparer.forClasspathLocation("db/migration").prepare(ds);
+        FlywayPreparer.forClasspathLocation("db/migration")
+                .prepare(ds);
     }
 }

@@ -2,13 +2,14 @@ package com.github.sibmaks.sp.controller;
 
 import com.github.sibmaks.sp.api.constant.CommonConstant;
 import com.github.sibmaks.sp.api.response.GetRoomResponse;
-import com.github.sibmaks.sp.domain.*;
+import com.github.sibmaks.sp.domain.User;
 import com.github.sibmaks.sp.dto.RoomInfoDto;
 import com.github.sibmaks.sp.exception.NotFoundException;
 import com.github.sibmaks.sp.exception.UnauthorizedException;
 import com.github.sibmaks.sp.service.RoomService;
 import com.github.sibmaks.sp.service.SessionService;
 import com.github.sibmaks.sp.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -16,9 +17,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.github.sibmaks.sp.api.constant.CommonConstant.REDIRECT_TO_ROOT;
@@ -37,67 +35,67 @@ public class UIController {
     private final SessionService sessionService;
 
     /**
-     * Index page, redirect on rooms page if client is authorized.
-     * Otherwise, authorization page will be returned.
+     * Index page, redirect on room page if a client is authorized.
+     * Otherwise, the authorization page will be returned.
      *
      * @param request http servlet request
      * @return redirect link or index page
      */
     @GetMapping("/")
     public String index(HttpServletRequest request) {
-        String sessionId = getSessionId(request);
-        if(sessionService.isAuthorized(sessionId)) {
+        var sessionId = getSessionId(request);
+        if (sessionService.isAuthorized(sessionId)) {
             return "redirect:/rooms";
         }
         return "index";
     }
 
     /**
-     * Registration page, redirect to index page if session is exists.
-     * Otherwise, client will see registration page.
+     * Registration page, redirect to index page if session exists.
+     * Otherwise, a client will see the registration page.
      *
      * @param request http servlet request
      * @return redirect link or registration page
      */
     @GetMapping("/reg")
     public String showRegistrationForm(HttpServletRequest request) {
-        String sessionId = getSessionId(request);
-        if(sessionService.isAuthorized(sessionId)) {
+        var sessionId = getSessionId(request);
+        if (sessionService.isAuthorized(sessionId)) {
             return REDIRECT_TO_ROOT;
         }
         return "registration";
     }
 
     /**
-     * Account page, redirect to index page if session is not exists.
-     * Otherwise, client will see account change page.
+     * Account page, redirect to index page if session does not exist.
+     * Otherwise, a client will see account change page.
      *
      * @param request http servlet request
-     * @param model spring model info
+     * @param model   spring model info
      * @return account page
      */
     @GetMapping("/account")
     public String showAccountForm(HttpServletRequest request, Model model) {
-        String sessionId = getSessionId(request);
-        User user = getUserOrUnauthorized(sessionId);
+        var sessionId = getSessionId(request);
+        var user = getUserOrUnauthorized(sessionId);
         model.addAttribute("firstName", user.getFirstName());
         model.addAttribute("lastName", user.getLastName());
         return "account";
     }
 
     /**
-     * Rooms list page, redirect to index page if session is not exists.
-     * Otherwise, client will see page with rooms list.
+     * Rooms list page, redirect to index page if session does not exist.
+     * Otherwise, a client will see a page with room list.
      *
      * @param request http servlet request
-     * @param model spring model info
+     * @param model   spring model info
      * @return rooms page
      */
     @GetMapping("/rooms")
     public String getRooms(HttpServletRequest request, Model model) {
-        String sessionId = getSessionId(request);
-        User user = getUserOrUnauthorized(sessionId);
-        List<RoomInfoDto> rooms = roomService.getRooms(user.getId()).stream()
+        var sessionId = getSessionId(request);
+        var user = getUserOrUnauthorized(sessionId);
+        var rooms = roomService.getRooms(user.getId()).stream()
                 .map(it -> new RoomInfoDto(it, roomService.getParticipantCount(it)))
                 .collect(Collectors.toList());
         model.addAttribute("rooms", rooms);
@@ -105,18 +103,18 @@ public class UIController {
     }
 
     /**
-     * Room creation page, redirect to index page if session is not exists.
-     * Otherwise, client will see room creation page.
+     * Room creation page, redirect to index page if session does not exist.
+     * Otherwise, a client will see room creation page.
      *
      * @param request http servlet request
-     * @param model spring model info
+     * @param model   spring model info
      * @return room creation page
      */
     @GetMapping("/room/create")
     public String createRoom(HttpServletRequest request, Model model) {
-        String sessionId = getSessionId(request);
-        if(sessionService.isAuthorized(sessionId)) {
-            List<Role> roles = roomService.getRoles();
+        var sessionId = getSessionId(request);
+        if (sessionService.isAuthorized(sessionId)) {
+            var roles = roomService.getRoles();
             model.addAttribute("roles", roles);
             return "create";
         }
@@ -129,9 +127,9 @@ public class UIController {
      * If user not belong to room then join page will be returned.
      * User can be automatically join to room if
      *
-     * @param request http servlet request
+     * @param request     http servlet request
      * @param roomIdParam room identifier
-     * @param model spring model info
+     * @param model       spring model info
      * @return room info page or join page
      */
     @GetMapping("/room/{roomId}")
@@ -142,29 +140,28 @@ public class UIController {
         } catch (Exception e) {
             return REDIRECT_TO_ROOT;
         }
-        String sessionId = getSessionId(request);
-        User user = getUserOrUnauthorized(sessionId);
-        Room room = roomService.getRoom(user, roomId);
+        var sessionId = getSessionId(request);
+        var user = getUserOrUnauthorized(sessionId);
+        var room = roomService.getRoom(user, roomId);
         if (room == null) {
-            List<Role> roles = roomService.getRoles(roomId);
+            var roles = roomService.getRoles(roomId);
             if (roles == null || roles.isEmpty()) {
                 return REDIRECT_TO_ROOT;
+            }
+            var hasSecret = roomService.hasSecret(roomId);
+            if (roles.size() == 1 && !hasSecret) {
+                var role = roles.getFirst();
+                room = roomService.joinRoom(user, roomId, role.getId(), null);
             } else {
-                boolean hasSecret = roomService.hasSecret(roomId);
-                if(roles.size() == 1 && !hasSecret) {
-                    Role role = roles.get(0);
-                    room = roomService.joinRoom(user, roomId, role.getId(), null);
-                } else {
-                    model.addAttribute("roomId", roomIdParam);
-                    model.addAttribute("roles", roles);
-                    model.addAttribute("hasSecret", hasSecret);
-                    return "join";
-                }
+                model.addAttribute("roomId", roomIdParam);
+                model.addAttribute("roles", roles);
+                model.addAttribute("hasSecret", hasSecret);
+                return "join";
             }
         }
-        String secret = roomService.getSecret(user, room);
-        List<Participant> participants = roomService.getParticipants(room);
-        GetRoomResponse response = new GetRoomResponse(user, room, participants);
+        var secret = roomService.getSecret(user, room);
+        var participants = roomService.getParticipants(room);
+        var response = new GetRoomResponse(user, room, participants);
         model.addAttribute("roomInfo", response.getRoomInfo());
         model.addAttribute("secretCode", secret);
         return "room";
@@ -172,16 +169,16 @@ public class UIController {
 
     /**
      * Get session identifier from http request.
-     * Looking for session id in headers and cookies
+     * Looking for session's id in headers and cookies
      *
      * @param request http servlet request
      * @return session identifier
      */
     private static String getSessionId(HttpServletRequest request) {
-        String header = request.getHeader(CommonConstant.HEADER_SESSION_ID);
-        if(header == null && request.getCookies() != null) {
-            for (Cookie cookie : request.getCookies()) {
-                if(CommonConstant.HEADER_SESSION_ID.equals(cookie.getName())) {
+        var header = request.getHeader(CommonConstant.HEADER_SESSION_ID);
+        if (header == null && request.getCookies() != null) {
+            for (var cookie : request.getCookies()) {
+                if (CommonConstant.HEADER_SESSION_ID.equals(cookie.getName())) {
                     return cookie.getValue();
                 }
             }
@@ -198,7 +195,7 @@ public class UIController {
      */
     private User getUserOrUnauthorized(String sessionId) {
         try {
-            ClientSession session = sessionService.getSession(sessionId);
+            var session = sessionService.getSession(sessionId);
             return userService.getUser(session.getUserId());
         } catch (NotFoundException e) {
             throw new UnauthorizedException();

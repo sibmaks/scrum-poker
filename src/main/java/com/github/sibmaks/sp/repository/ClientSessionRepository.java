@@ -15,9 +15,11 @@ import org.springframework.transaction.annotation.Transactional;
 public interface ClientSessionRepository extends JpaRepository<ClientSession, String> {
     /**
      * Method for removing all invalid (expired) sessions
+     *
+     * @return number of deleted sessions
      */
     @Transactional
     @Modifying
-    @Query("delete from ClientSession where valid_to <= CURRENT_TIMESTAMP")
+    @Query("delete from ClientSession where validTo <= CURRENT_TIMESTAMP")
     int deleteExpired();
 }

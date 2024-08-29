@@ -1,8 +1,8 @@
 package com.github.sibmaks.sp.fixture;
 
 import com.opentable.db.postgres.embedded.PreparedDbProvider;
+import jakarta.annotation.PostConstruct;
 
-import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import java.sql.SQLException;
 

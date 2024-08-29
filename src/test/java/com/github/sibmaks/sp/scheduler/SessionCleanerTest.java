@@ -5,7 +5,6 @@ import com.github.sibmaks.sp.domain.ClientSession;
 import com.github.sibmaks.sp.domain.User;
 import com.github.sibmaks.sp.repository.ClientSessionRepository;
 import com.github.sibmaks.sp.repository.UserRepository;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,6 +15,8 @@ import org.springframework.test.context.ContextConfiguration;
 
 import java.util.Date;
 import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * @author drobyshev-ma
@@ -36,7 +37,7 @@ class SessionCleanerTest {
 
     @Test
     void testCleanUp() {
-        User user = new User();
+        var user = new User();
         user.setFirstName("first");
         user.setLastName("last");
         user.setLogin(UUID.randomUUID().toString());
@@ -44,7 +45,7 @@ class SessionCleanerTest {
 
         user = userRepository.save(user);
 
-        ClientSession clientSession = new ClientSession();
+        var clientSession = new ClientSession();
         clientSession.setSessionId(UUID.randomUUID().toString());
         clientSession.setUserId(user.getId());
         clientSession.setCreatedAt(new Date());
@@ -54,6 +55,6 @@ class SessionCleanerTest {
 
         sessionCleaner.cleanUp();
 
-        Assertions.assertFalse(clientSessionRepository.existsById(clientSession.getSessionId()));
+        assertFalse(clientSessionRepository.existsById(clientSession.getSessionId()));
     }
 }

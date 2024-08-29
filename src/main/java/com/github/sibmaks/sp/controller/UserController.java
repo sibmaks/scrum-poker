@@ -12,6 +12,7 @@ import com.github.sibmaks.sp.exception.NotFoundException;
 import com.github.sibmaks.sp.exception.UnauthorizedException;
 import com.github.sibmaks.sp.service.SessionService;
 import com.github.sibmaks.sp.service.UserService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -19,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * Rest controller for operation with user
@@ -37,7 +37,7 @@ public class UserController {
     /**
      * Api endpoint for user login.
      * Session id will be saved in http header: X-Session-Id.
-     * After successful execution empty response will be returned.
+     * After successful execution, empty response will be returned.
      *
      * @param request API request DTO {@link LoginRequest}
      * @param response http servlet response
@@ -46,14 +46,14 @@ public class UserController {
      */
     @PostMapping(value = "login", consumes = MediaType.APPLICATION_JSON_VALUE)
     public StandardResponse login(@RequestBody @Validated LoginRequest request, HttpServletResponse response) {
-        String sessionId = userService.login(request.getLogin(), request.getPassword());
+        var sessionId = userService.login(request.getLogin(), request.getPassword());
         response.setHeader(CommonConstant.HEADER_SESSION_ID, sessionId);
         return new StandardResponse();
     }
 
     /**
      * Api endpoint for user logout.
-     * After successful execution empty response will be returned.
+     * After successful execution, empty response will be returned.
      *
      * @param sessionId session identifier for logout
      * @see StandardResponse
@@ -68,7 +68,7 @@ public class UserController {
     /**
      * Api endpoint for user registration.
      * Session id will be saved in http header: X-Session-Id.
-     * After successful execution empty response will be returned.
+     * After successful execution, empty response will be returned.
      *
      * @param request API request DTO {@link RegistrationUserRequest}
      * @param response http servlet response
@@ -79,7 +79,7 @@ public class UserController {
     @Transactional
     public StandardResponse doRegistration(@RequestBody @Validated RegistrationUserRequest request,
                                            HttpServletResponse response) {
-        String sessionId = userService.createUser(request.getLogin(), request.getPassword(), request.getFirstName(),
+        var sessionId = userService.createUser(request.getLogin(), request.getPassword(), request.getFirstName(),
                 request.getLastName());
         response.setHeader(CommonConstant.HEADER_SESSION_ID, sessionId);
         return new StandardResponse();
@@ -99,15 +99,15 @@ public class UserController {
     @Transactional
     public StandardResponse update(@RequestHeader(CommonConstant.HEADER_SESSION_ID) String sessionId,
                                    @RequestBody @Validated UpdateUserRequest request) {
-        User user = getUserOrUnauthorized(sessionId);
+        var user = getUserOrUnauthorized(sessionId);
         userService.update(user, request.getFirstName(), request.getLastName());
         return new StandardResponse();
     }
 
     /**
      * Api endpoint for updating user password.
-     * In case if session not exists or unauthorized then Unauthorized result code will be returned.
-     * After successful execution empty response will be returned.
+     * In case if session does not exist or unauthorized, then Unauthorized result code will be returned.
+     * After successful execution, empty response will be returned.
      *
      * @param sessionId session identifier for logout
      * @param request API request DTO {@link ChangePasswordRequest}
@@ -118,7 +118,7 @@ public class UserController {
     @Transactional
     public StandardResponse changePassword(@RequestHeader(CommonConstant.HEADER_SESSION_ID) String sessionId,
                                    @RequestBody @Validated ChangePasswordRequest request) {
-        User user = getUserOrUnauthorized(sessionId);
+        var user = getUserOrUnauthorized(sessionId);
         userService.changePassword(user, request.getPassword());
         return new StandardResponse();
     }

@@ -71,7 +71,7 @@ class RoomServiceTest {
         Role role1 = new Role();
         role1.setId(500);
 
-        Role role = new Role();
+        var role = new Role();
         role.setId(501);
 
         List<Integer> roleIds = new ArrayList<>();
@@ -89,7 +89,7 @@ class RoomServiceTest {
         Role role1 = new Role();
         role1.setId(500);
 
-        Role role = new Role();
+        var role = new Role();
         role.setId(501);
 
         List<Integer> roleIds = new ArrayList<>();
@@ -98,16 +98,16 @@ class RoomServiceTest {
         when(roleRepository.findAllByIdIn(roleIds)).
                 thenReturn(Arrays.asList(role1, role));
 
-        int roomId = 100;
+        var roomId = 100;
         ArgumentCaptor<Room> roomArgumentCaptor = ArgumentCaptor.forClass(Room.class);
         when(roomRepository.save(roomArgumentCaptor.capture())).
                 thenAnswer(it -> {
-                    Room room = (Room) it.getArguments()[0];
+                    var room = (Room) it.getArguments()[0];
                     room.setId(roomId);
                     return room;
                 });
 
-        User user = new User();
+        var user = new User();
         user.setId(200);
 
         String roomName = UUID.randomUUID() + "<body>";
@@ -147,7 +147,7 @@ class RoomServiceTest {
             }
         }
 
-        Participant participant = participantCaptor.getValue();
+        var participant = participantCaptor.getValue();
         assertEquals(participant.getParticipantId().getRoom(), savedRoom);
         assertEquals(participant.getParticipantId().getUser(), user);
         assertEquals(participant.getRole(), role);
@@ -158,7 +158,7 @@ class RoomServiceTest {
         Role role1 = new Role();
         role1.setId(500);
 
-        Role role = new Role();
+        var role = new Role();
         role.setId(501);
 
         List<Integer> roleIds = new ArrayList<>();
@@ -167,16 +167,16 @@ class RoomServiceTest {
         when(roleRepository.findAllByIdIn(roleIds)).
                 thenReturn(Arrays.asList(role1, role));
 
-        int roomId = 100;
+        var roomId = 100;
         ArgumentCaptor<Room> roomArgumentCaptor = ArgumentCaptor.forClass(Room.class);
         when(roomRepository.save(roomArgumentCaptor.capture())).
                 thenAnswer(it -> {
-                    Room room = (Room) it.getArguments()[0];
+                    var room = (Room) it.getArguments()[0];
                     room.setId(roomId);
                     return room;
                 });
 
-        User user = new User();
+        var user = new User();
         user.setId(200);
 
         String roomName = UUID.randomUUID() + "<body>";
@@ -223,7 +223,7 @@ class RoomServiceTest {
             }
         }
 
-        Participant participant = participantCaptor.getValue();
+        var participant = participantCaptor.getValue();
         assertEquals(participant.getParticipantId().getRoom(), savedRoom);
         assertEquals(participant.getParticipantId().getUser(), user);
         assertEquals(participant.getRole(), role);
@@ -243,7 +243,7 @@ class RoomServiceTest {
         long roomId = 500;
         int roleId = 501;
 
-        Room room = new Room();
+        var room = new Room();
         when(roomRepository.findById(roomId)).
                 thenReturn(Optional.of(room));
         when(roomRoleRepository.findAllByRoomRoleIdRoom(room)).
@@ -258,11 +258,11 @@ class RoomServiceTest {
         int roleId = 501;
         String secret = UUID.randomUUID().toString();
 
-        Room room = new Room();
+        var room = new Room();
         when(roomRepository.findById(roomId)).
                 thenReturn(Optional.of(room));
 
-        Role role = new Role();
+        var role = new Role();
         role.setId(roleId);
         RoomRole roomRole = new RoomRole();
         roomRole.setRoomRoleId(new RoomRoleId(room, role));
@@ -283,12 +283,12 @@ class RoomServiceTest {
         int roleId = 501;
         String secret = UUID.randomUUID().toString();
 
-        Room room = new Room();
+        var room = new Room();
         room.setId(roomId);
         when(roomRepository.findById(roomId)).
                 thenReturn(Optional.of(room));
 
-        Role role = new Role();
+        var role = new Role();
         role.setId(roleId);
         RoomRole roomRole = new RoomRole();
         roomRole.setRoomRoleId(new RoomRoleId(room, role));
@@ -300,7 +300,7 @@ class RoomServiceTest {
         when(roomSecretRepository.findById(roomId)).
                 thenReturn(Optional.of(roomSecret));
 
-        User user = new User();
+        var user = new User();
         user.setId(100);
 
         ArgumentCaptor<Participant> participantArgumentCaptor = ArgumentCaptor.forClass(Participant.class);
@@ -314,7 +314,7 @@ class RoomServiceTest {
         Room joinRoom = roomService.joinRoom(user, roomId, roleId, secret);
         assertEquals(getRoom, joinRoom);
 
-        Participant participant = participantArgumentCaptor.getValue();
+        var participant = participantArgumentCaptor.getValue();
         assertEquals(participant.getParticipantId().getRoom(), room);
         assertEquals(participant.getParticipantId().getUser(), user);
         assertEquals(participant.getRole(), role);
@@ -325,12 +325,12 @@ class RoomServiceTest {
         long roomId = 500;
         int roleId = 501;
 
-        Room room = new Room();
+        var room = new Room();
         room.setId(roomId);
         when(roomRepository.findById(roomId)).
                 thenReturn(Optional.of(room));
 
-        Role role = new Role();
+        var role = new Role();
         role.setId(roleId);
         RoomRole roomRole = new RoomRole();
         roomRole.setRoomRoleId(new RoomRoleId(room, role));
@@ -345,7 +345,7 @@ class RoomServiceTest {
         when(roomSecretRepository.findById(roomId)).
                 thenReturn(Optional.empty());
 
-        User user = new User();
+        var user = new User();
         user.setId(100);
 
         ArgumentCaptor<Participant> participantArgumentCaptor = ArgumentCaptor.forClass(Participant.class);
@@ -359,7 +359,7 @@ class RoomServiceTest {
         Room joinRoom = roomService.joinRoom(user, roomId, roleId, null);
         assertEquals(getRoom, joinRoom);
 
-        Participant participant = participantArgumentCaptor.getValue();
+        var participant = participantArgumentCaptor.getValue();
         assertEquals(participant.getParticipantId().getRoom(), room);
         assertEquals(participant.getParticipantId().getUser(), user);
         assertEquals(participant.getRole(), role);
@@ -377,7 +377,7 @@ class RoomServiceTest {
     @Test
     void testGetParticipantCount() {
         long participants = 100;
-        Room room = new Room();
+        var room = new Room();
         when(roomService.getParticipantCount(room)).
                 thenReturn(participants);
         assertEquals(participants, roomService.getParticipantCount(room));
@@ -385,10 +385,10 @@ class RoomServiceTest {
 
     @Test
     void testGetRoom() {
-        User user = new User();
+        var user = new User();
         user.setId(43);
-        int roomId = 42;
-        Room room = new Room();
+        var roomId = 42;
+        var room = new Room();
 
         when(roomRepository.findByParticipantAndId(user.getId(), roomId)).
                 thenReturn(room);
@@ -398,31 +398,31 @@ class RoomServiceTest {
 
     @Test
     void testLeaveRoom() {
-        User user = new User();
+        var user = new User();
         user.setId(43);
-        int roomId = 42;
-        Room room = new Room();
+        var roomId = 42;
+        var room = new Room();
 
         when(roomRepository.findByParticipantAndId(user.getId(), roomId)).
                 thenReturn(room);
 
         roomService.leaveRoom(user, roomId);
 
-        verify(participantRepository, times(1)).deleteByParticipantIdUserAndParticipantIdRoom(user, room);
+        verify(participantRepository).deleteByParticipantIdUserAndParticipantIdRoom(user, room);
     }
 
     @Test
     void testVote_notFound() {
-        long roomId = 42;
+        var roomId = 42L;
         when(roomRepository.findById(roomId)).
                 thenReturn(Optional.empty());
-        User user = new User();
+        var user = new User();
         assertThrows(NotFoundException.class, () -> roomService.vote(user, roomId, "score"));
     }
 
     @Test
     void testVote_notAllowed() {
-        Room room = new Room();
+        var room = new Room();
         room.setId(42);
 
         when(roomRepository.findById(room.getId())).
@@ -430,23 +430,23 @@ class RoomServiceTest {
         when(participantRepository.findByParticipantId(any())).
                 thenReturn(Optional.empty());
 
-        User user = new User();
+        var user = new User();
         long roomId = room.getId();
         assertThrows(NotAllowedException.class, () -> roomService.vote(user, roomId, "score"));
     }
 
     @Test
     void testVote_notVoting() {
-        User user = new User();
+        var user = new User();
 
-        Room room = new Room();
+        var room = new Room();
         room.setId(42);
         room.setVoting(false);
 
         when(roomRepository.findById(room.getId())).
                 thenReturn(Optional.of(room));
 
-        Participant participant = new Participant();
+        var participant = new Participant();
         participant.setParticipantId(new ParticipantId(user, room));
 
         when(participantRepository.findByParticipantId(any())).
@@ -459,16 +459,16 @@ class RoomServiceTest {
     @Test
     void testVote() {
         String score = "score";
-        User user = new User();
+        var user = new User();
 
-        Room room = new Room();
+        var room = new Room();
         room.setId(42);
         room.setVoting(true);
 
         when(roomRepository.findById(room.getId())).
                 thenReturn(Optional.of(room));
 
-        Participant participant = new Participant();
+        var participant = new Participant();
         participant.setParticipantId(new ParticipantId(user, room));
 
         when(participantRepository.findByParticipantId(any())).
@@ -477,7 +477,7 @@ class RoomServiceTest {
         roomService.vote(user, room.getId(), score);
 
         ArgumentCaptor<Participant> captor = ArgumentCaptor.forClass(Participant.class);
-        verify(participantRepository, times(1)).save(captor.capture());
+        verify(participantRepository).save(captor.capture());
 
         Participant savedParticipant = captor.getValue();
         assertEquals(score, savedParticipant.getScore());
@@ -485,7 +485,7 @@ class RoomServiceTest {
 
     @Test
     void testGetParticipants() {
-        Room room = new Room();
+        var room = new Room();
 
         List<Participant> participants = Collections.singletonList(new Participant());
         when(participantRepository.findAllByParticipantIdRoom(room)).
@@ -496,10 +496,10 @@ class RoomServiceTest {
 
     @Test
     void testSetVoting_notExists() {
-        long roomId = 42;
+        var roomId = 42L;
         when(roomRepository.findById(roomId)).
                 thenReturn(Optional.empty());
-        User user = new User();
+        var user = new User();
         assertThrows(NotFoundException.class, () -> roomService.setVoting(user, roomId, true));
     }
 
@@ -508,10 +508,10 @@ class RoomServiceTest {
         User author = new User();
         author.setId(41);
 
-        User user = new User();
+        var user = new User();
         user.setId(42);
 
-        Room room = new Room();
+        var room = new Room();
         room.setId(43);
         room.setAuthor(author);
 
@@ -523,10 +523,10 @@ class RoomServiceTest {
 
     @Test
     void testSetVoting_true() {
-        User user = new User();
+        var user = new User();
         user.setId(42);
 
-        Room room = new Room();
+        var room = new Room();
         room.setId(43);
         room.setAuthor(user);
 
@@ -538,15 +538,15 @@ class RoomServiceTest {
         Room setVoting = roomService.setVoting(user, room.getId(), true);
         assertEquals(room, setVoting);
 
-        verify(participantRepository, times(1)).resetScore(room);
+        verify(participantRepository).resetScore(room);
     }
 
     @Test
     void testSetVoting_false() {
-        User user = new User();
+        var user = new User();
         user.setId(42);
 
-        Room room = new Room();
+        var room = new Room();
         room.setId(43);
         room.setAuthor(user);
 
@@ -563,7 +563,7 @@ class RoomServiceTest {
 
     @Test
     void testGetRoles_forRoom() {
-        long roomId = 42;
+        var roomId = 42L;
 
         List<Role> roles = Collections.singletonList(new Role());
         when(roleRepository.findAllForRoom(roomId)).
@@ -582,7 +582,7 @@ class RoomServiceTest {
 
     @Test
     void testHasSecret() {
-        long roomId = 42;
+        var roomId = 42L;
 
         when(roomSecretRepository.existsById(roomId)).
                 thenReturn(true);
@@ -591,7 +591,7 @@ class RoomServiceTest {
 
     @Test
     void testHasSecret_false() {
-        long roomId = 42;
+        var roomId = 42L;
 
         when(roomSecretRepository.existsById(roomId)).
                 thenReturn(false);
@@ -600,10 +600,10 @@ class RoomServiceTest {
 
     @Test
     void testGetSecret_author() {
-        User user = new User();
+        var user = new User();
         user.setId(42);
 
-        Room room = new Room();
+        var room = new Room();
         room.setId(43);
         room.setAuthor(user);
 
@@ -614,7 +614,7 @@ class RoomServiceTest {
 
         assertEquals(roomSecret.getSecretCode(), roomService.getSecret(user, room));
 
-        verify(roomSecretRepository, times(1)).findById(room.getId());
+        verify(roomSecretRepository).findById(room.getId());
     }
 
     @Test
@@ -622,10 +622,10 @@ class RoomServiceTest {
         User author = new User();
         author.setId(41);
 
-        User user = new User();
+        var user = new User();
         user.setId(42);
 
-        Room room = new Room();
+        var room = new Room();
         room.setId(43);
         room.setAuthor(author);
 

@@ -68,14 +68,14 @@ public class RoomService {
         if(rolesList.isEmpty() || roles.size() != rolesList.size()) {
             throw new NotFoundException();
         }
-        Role role = rolesList.stream()
+        var role = rolesList.stream()
                 .filter(it -> it.getId() == roleId)
                 .findFirst()
                 .orElseThrow(NotFoundException::new);
 
         Date created = new Date();
 
-        Room room = Room.builder()
+        var room = Room.builder()
                 .name(HtmlUtils.htmlEscape(name))
                 .author(user)
                 .created(created)
@@ -140,8 +140,8 @@ public class RoomService {
      * @return room domain in which user was joined
      */
     public Room joinRoom(User user, long roomId, int roleId, String secretCode) {
-        Room room = roomRepository.findById(roomId).orElseThrow(NotFoundException::new);
-        Role role = roomRoleRepository.findAllByRoomRoleIdRoom(room).stream()
+        var room = roomRepository.findById(roomId).orElseThrow(NotFoundException::new);
+        var role = roomRoleRepository.findAllByRoomRoleIdRoom(room).stream()
                 .map(RoomRole::getRoomRoleId)
                 .map(RoomRoleId::getRole)
                 .filter(it -> it.getId() == roleId)
@@ -163,7 +163,7 @@ public class RoomService {
      * @return room after user joining
      */
     private Room joinRoom(User user, Room room, Role role) {
-        Participant participant = Participant.builder()
+        var participant = Participant.builder()
                 .role(role)
                 .participantId(
                         ParticipantId.builder()
@@ -182,7 +182,7 @@ public class RoomService {
      * @param roomId room identifier
      */
     public void leaveRoom(User user, long roomId) {
-        Room room = getRoom(user, roomId);
+        var room = getRoom(user, roomId);
         participantRepository.deleteByParticipantIdUserAndParticipantIdRoom(user, room);
     }
 
@@ -205,12 +205,12 @@ public class RoomService {
      */
     @Transactional
     public void vote(User user, long roomId, String score) {
-        Room room = roomRepository.findById(roomId).orElseThrow(NotFoundException::new);
+        var room = roomRepository.findById(roomId).orElseThrow(NotFoundException::new);
         ParticipantId participantId = ParticipantId.builder()
                 .user(user)
                 .room(room)
                 .build();
-        Participant participant = participantRepository.findByParticipantId(participantId).orElseThrow(NotAllowedException::new);
+        var participant = participantRepository.findByParticipantId(participantId).orElseThrow(NotAllowedException::new);
         if(!participant.getParticipantId().getRoom().isVoting()) {
             throw new NotAllowedException();
         }
@@ -231,7 +231,7 @@ public class RoomService {
      */
     @Transactional
     public Room setVoting(User user, long roomId, boolean voting) {
-        Room room = roomRepository.findById(roomId).orElseThrow(NotFoundException::new);
+        var room = roomRepository.findById(roomId).orElseThrow(NotFoundException::new);
         if(room.getAuthor().getId() != user.getId()) {
             throw new NotAllowedException();
         }

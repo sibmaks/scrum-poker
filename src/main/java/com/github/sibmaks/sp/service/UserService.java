@@ -37,7 +37,7 @@ public class UserService {
      * @return session identifier
      */
     public String login(String login, String password) {
-        User user = userRepository.findByLogin(login.toLowerCase(Locale.ROOT));
+        var user = userRepository.findByLogin(login.toLowerCase(Locale.ROOT));
         if(user == null) {
             throw new NotFoundException();
         }
@@ -68,7 +68,7 @@ public class UserService {
             throw new LoginIsBusyException();
         }
 
-        User user = User.builder()
+        var user = User.builder()
                 .login(login)
                 .password(BCrypt.hashpw(password, BCrypt.gensalt()))
                 .firstName(HtmlUtils.htmlEscape(firstName))

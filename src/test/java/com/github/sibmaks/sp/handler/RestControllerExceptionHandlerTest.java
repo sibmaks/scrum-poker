@@ -1,9 +1,6 @@
 package com.github.sibmaks.sp.handler;
 
 import com.github.sibmaks.sp.api.constant.ApiResultCode;
-import com.github.sibmaks.sp.api.entity.ValidationError;
-import com.github.sibmaks.sp.api.response.StandardResponse;
-import com.github.sibmaks.sp.api.response.ValidationErrorResponse;
 import com.github.sibmaks.sp.exception.NotFoundException;
 import com.github.sibmaks.sp.exception.ValidationErrorException;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,7 +11,6 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.util.Collections;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -34,8 +30,8 @@ class RestControllerExceptionHandlerTest {
 
     @Test
     void testOnException() {
-        Exception e = new Exception();
-        StandardResponse standardResponse = handler.onException(e);
+        var e = new Exception();
+        var standardResponse = handler.onException(e);
         assertEquals(standardResponse.getResultCode(), ApiResultCode.UNEXPECTED_ERROR.code);
     }
 
@@ -47,12 +43,12 @@ class RestControllerExceptionHandlerTest {
             }
         }
 
-        MethodParameter methodParameter = new MethodParameter(
+        var methodParameter = new MethodParameter(
                 StubValidator.class.getDeclaredMethod("method", String.class),
                 0
         );
-        BindingResult bindingResult = mock(BindingResult.class);
-        FieldError fieldError = mock(FieldError.class);
+        var bindingResult = mock(BindingResult.class);
+        var fieldError = mock(FieldError.class);
         when(fieldError.getField()).
                 thenReturn("fieldName");
         when(fieldError.getDefaultMessage()).
@@ -60,36 +56,36 @@ class RestControllerExceptionHandlerTest {
         when(bindingResult.getFieldErrors()).
                 thenReturn(Collections.singletonList(fieldError));
 
-        MethodArgumentNotValidException e = new MethodArgumentNotValidException(methodParameter, bindingResult);
-        ValidationErrorResponse response = handler.onMethodArgumentNotValidException(e);
+        var e = new MethodArgumentNotValidException(methodParameter, bindingResult);
+        var response = handler.onMethodArgumentNotValidException(e);
         assertEquals(response.getResultCode(), ApiResultCode.VALIDATION_ERROR.code);
 
-        List<ValidationError> validationErrors = response.getValidationErrors();
+        var validationErrors = response.getValidationErrors();
         assertEquals(1, validationErrors.size());
 
-        ValidationError validationError = validationErrors.get(0);
+        var validationError = validationErrors.getFirst();
         assertEquals("fieldName", validationError.getField());
         assertEquals("Error message", validationError.getMessage());
     }
 
     @Test
     void testOnValidationErrorException() {
-        ValidationErrorException e = new ValidationErrorException("fieldName", "error message");
-        ValidationErrorResponse response = handler.onValidException(e);
+        var e = new ValidationErrorException("fieldName", "error message");
+        var response = handler.onValidException(e);
         assertEquals(response.getResultCode(), ApiResultCode.VALIDATION_ERROR.code);
 
-        List<ValidationError> validationErrors = response.getValidationErrors();
+        var validationErrors = response.getValidationErrors();
         assertEquals(1, validationErrors.size());
 
-        ValidationError validationError = validationErrors.get(0);
+        var validationError = validationErrors.getFirst();
         assertEquals("fieldName", validationError.getField());
         assertEquals("error message", validationError.getMessage());
     }
 
     @Test
     void testOnServiceException() {
-        NotFoundException e = new NotFoundException();
-        StandardResponse standardResponse = handler.onServiceException(e);
+        var e = new NotFoundException();
+        var standardResponse = handler.onServiceException(e);
         assertEquals(standardResponse.getResultCode(), e.getApiResultCode().code);
     }
 }

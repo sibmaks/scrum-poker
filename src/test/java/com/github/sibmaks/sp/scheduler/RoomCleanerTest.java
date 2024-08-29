@@ -5,7 +5,6 @@ import com.github.sibmaks.sp.domain.Room;
 import com.github.sibmaks.sp.domain.User;
 import com.github.sibmaks.sp.repository.RoomRepository;
 import com.github.sibmaks.sp.repository.UserRepository;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,6 +15,8 @@ import org.springframework.test.context.ContextConfiguration;
 
 import java.util.Date;
 import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * @author drobyshev-ma
@@ -37,7 +38,7 @@ class RoomCleanerTest {
 
     @Test
     void testCleanUp() {
-        User user = new User();
+        var user = new User();
         user.setFirstName("first");
         user.setLastName("last");
         user.setLogin(UUID.randomUUID().toString());
@@ -45,7 +46,7 @@ class RoomCleanerTest {
 
         user = userRepository.save(user);
 
-        Room expiredRoom = Room.builder()
+        var expiredRoom = Room.builder()
                 .name("Expired room")
                 .expired(new Date(new Date().getTime() - 1))
                 .created(new Date())
@@ -57,6 +58,6 @@ class RoomCleanerTest {
 
         roomCleaner.cleanUp();
 
-        Assertions.assertFalse(roomRepository.existsById(expiredRoom.getId()));
+        assertFalse(roomRepository.existsById(expiredRoom.getId()));
     }
 }

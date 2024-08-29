@@ -1,11 +1,11 @@
 package com.github.sibmaks.sp.api.request;
 
+import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.Min;
 
 /**
  * Join room request

@@ -1,7 +1,7 @@
 version: '3.5'
 services:
   scrum_poker:
-    image: sibmaks/scrum-poker:latest
+    image: sibmaks/scrum-poker:0.0.4
     container_name: scrum_poker
     ports:
       - "8080:8080"

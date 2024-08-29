@@ -78,13 +78,19 @@
     <script th:src="@{/js/tet.js}"></script>
     <script th:src="@{/libs/js/window-engine.min.js}"></script>
     <script>
-        const keys = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65];
+        const keys = [
+            "ArrowUp", "ArrowUp",
+            "ArrowDown", "ArrowDown",
+            "ArrowLeft", "ArrowRight",
+            "ArrowLeft", "ArrowRight",
+            "KeyB", "KeyA"
+        ];
         let offset = 0;
 
         const clipboardSecretBtn = $('#clipboard-secret-btn');
         const clipboardJS = new ClipboardJS('#clipboard-secret-btn');
 
-        clipboardJS.on("success", function (e) {
+        clipboardJS.on("success", function () {
             clipboardSecretBtn
                 .text('Copied!');
             setTimeout(function() {
@@ -93,12 +99,12 @@
             }, 3000);
         });
 
-        clipboardJS.on("error", function (e) {
+        clipboardJS.on("error", function () {
             clipboardSecretBtn.outerHTML = "<p class='border border-primary rounded'>" + secretCode + "</p>"
         });
 
         document.addEventListener('keydown', function(e) {
-            if(keys[offset] === e.keyCode) {
+            if(keys[offset] === e.code) {
                 offset++;
                 if(offset === keys.length) {
                     rAF = requestAnimationFrame(loop);

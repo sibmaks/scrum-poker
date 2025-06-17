@@ -9,6 +9,26 @@
       "name": "app.session.ttl.value",
       "type": "java.lang.Integer",
       "description": "User session time to live value."
+    },
+    {
+      "name": "app.cleaner.room.initial.delay",
+      "type": "java.lang.Long",
+      "description": "Room cleaner start up delay in milliseconds."
+    },
+    {
+      "name": "app.cleaner.room.delay",
+      "type": "java.lang.Long",
+      "description": "Room cleaner delay between iterations in milliseconds."
+    },
+    {
+      "name": "app.cleaner.session.initial.delay",
+      "type": "java.lang.Long",
+      "description": "Session cleaner start up delay in milliseconds."
+    },
+    {
+      "name": "app.cleaner.session.delay",
+      "type": "java.lang.Long",
+      "description": "Session cleaner delay between iterations in milliseconds."
     }
   ]
 }

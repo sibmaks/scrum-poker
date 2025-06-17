@@ -21,9 +21,13 @@ public class SessionCleaner {
 
     /**
      * Method executed at fixed rate and remove old sessions from DB
-     * @see ClientSessionRepository
+     *
+     * @see ClientSessionRepository used for cleanup expired sessions
      */
-    @Scheduled(fixedDelay = 1000L * 60 * 60 * 2, initialDelay = 10000)
+    @Scheduled(
+            fixedDelayString = "${app.cleaner.session.delay:7200000}",
+            initialDelayString = "${app.cleaner.session.initial.delay:10000}"
+    )
     public void cleanUp() {
         var start = System.currentTimeMillis();
         log.debug("Start session cleanup");

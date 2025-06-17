@@ -21,9 +21,13 @@ public class RoomCleaner {
 
     /**
      * Method executed at fixed rate and remove old rooms from DB
-     * @see RoomRepository
+     *
+     * @see RoomRepository used for cleanup expired rooms
      */
-    @Scheduled(fixedDelay = 1000L * 60 * 60 * 2, initialDelay = 10000)
+    @Scheduled(
+            fixedDelayString = "${app.cleaner.room.delay:7200000}",
+            initialDelayString = "${app.cleaner.room.initial.delay:10000}"
+    )
     public void cleanUp() {
         var start = System.currentTimeMillis();
         log.debug("Start rooms cleanup");

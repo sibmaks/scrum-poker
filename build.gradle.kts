@@ -8,6 +8,11 @@ plugins {
 	id("jacoco")
 }
 
+val versionFromProperty = "${project.property("version")}"
+val versionFromEnv: String? = System.getenv("VERSION")
+
+version = versionFromEnv ?: versionFromProperty
+
 val targetJavaVersion = (project.property("jdk_version") as String).toInt()
 val javaVersion = JavaVersion.toVersion(targetJavaVersion)
 

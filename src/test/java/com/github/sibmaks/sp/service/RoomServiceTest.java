@@ -6,16 +6,14 @@ import com.github.sibmaks.sp.exception.NotAllowedException;
 import com.github.sibmaks.sp.exception.NotFoundException;
 import com.github.sibmaks.sp.exception.WrongSecretCodeException;
 import com.github.sibmaks.sp.repository.*;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.util.HtmlUtils;
 
 import java.util.*;
@@ -32,15 +30,15 @@ import static org.mockito.Mockito.*;
 @ContextConfiguration
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class RoomServiceTest {
-    @MockBean
+    @MockitoBean
     private RoomRepository roomRepository;
-    @MockBean
+    @MockitoBean
     private RoleRepository roleRepository;
-    @MockBean
+    @MockitoBean
     private ParticipantRepository participantRepository;
-    @MockBean
+    @MockitoBean
     private RoomRoleRepository roomRoleRepository;
-    @MockBean
+    @MockitoBean
     private RoomSecretRepository roomSecretRepository;
     @Autowired
     private RoomService roomService;

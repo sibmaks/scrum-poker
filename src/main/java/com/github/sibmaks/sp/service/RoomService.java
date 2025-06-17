@@ -14,7 +14,6 @@ import org.springframework.web.util.HtmlUtils;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Room operation service
@@ -32,10 +31,24 @@ public class RoomService {
     private final RoomSecretRepository roomSecretRepository;
 
     /**
+     * Add days to passed date
+     *
+     * @param date date to add
+     * @param days count of days
+     * @return new date
+     */
+    private static Date addDays(Date date, int days) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        c.add(Calendar.DATE, days);
+        return c.getTime();
+    }
+
+    /**
      * Get rooms for user, where user is participant in
      *
      * @param userUd user identifier
-     * @return lsit of rooms
+     * @return list of rooms
      */
     public List<Room> getRooms(long userUd) {
         return roomRepository.findByUserId(userUd);
@@ -54,18 +67,18 @@ public class RoomService {
     /**
      * Create room with specific parameter
      *
-     * @param user room author
-     * @param name room name
-     * @param secretCode room secret code, if null then not setted
-     * @param roles roles allowed in room
-     * @param days days of rooms existing
-     * @param roleId author role identifier
+     * @param user       room author
+     * @param name       room name
+     * @param secretCode room secret code, if null then not set
+     * @param roles      roles allowed in room
+     * @param days       days of rooms existing
+     * @param roleId     author role identifier
      * @return created room domain
      */
     @Transactional
     public Room createRoom(User user, String name, String secretCode, List<Integer> roles, int days, int roleId) {
-        List<Role> rolesList = roleRepository.findAllByIdIn(roles);
-        if(rolesList.isEmpty() || roles.size() != rolesList.size()) {
+        var rolesList = roleRepository.findAllByIdIn(roles);
+        if (rolesList.isEmpty() || roles.size() != rolesList.size()) {
             throw new NotFoundException();
         }
         var role = rolesList.stream()
@@ -73,7 +86,7 @@ public class RoomService {
                 .findFirst()
                 .orElseThrow(NotFoundException::new);
 
-        Date created = new Date();
+        var created = new Date();
 
         var room = Room.builder()
                 .name(HtmlUtils.htmlEscape(name))
@@ -85,7 +98,7 @@ public class RoomService {
 
         room = roomRepository.save(room);
 
-        if(secretCode != null) {
+        if (secretCode != null) {
             RoomSecret roomSecret = RoomSecret.builder()
                     .roomId(room.getId())
                     .secretCode(secretCode)
@@ -93,10 +106,17 @@ public class RoomService {
             roomSecretRepository.save(roomSecret);
         }
 
-        Room finalRoom = room;
-        List<RoomRole> roomRoles = rolesList.stream()
-                .map(it -> RoomRole.builder().roomRoleId(RoomRoleId.builder().role(it).room(finalRoom).build()).build())
-                .collect(Collectors.toList());
+        var finalRoom = room;
+        var roomRoles = rolesList.stream()
+                .map(it -> RoomRole.builder()
+                        .roomRoleId(
+                                RoomRoleId.builder()
+                                        .role(it)
+                                        .room(finalRoom)
+                                        .build()
+                        )
+                        .build())
+                .toList();
 
         roomRoleRepository.saveAll(roomRoles);
 
@@ -104,23 +124,10 @@ public class RoomService {
     }
 
     /**
-     * Add days to passed date
-     * @param date date to add
-     * @param days count of days
-     * @return new date
-     */
-    private static Date addDays(Date date, int days) {
-        Calendar c = Calendar.getInstance();
-        c.setTime(date);
-        c.add(Calendar.DATE, days);
-        return c.getTime();
-    }
-
-    /**
      * Get room for user.
      * If user is not participant then null will be returned
      *
-     * @param user user domain
+     * @param user   user domain
      * @param roomId room identifier
      * @return room or null
      */
@@ -133,9 +140,9 @@ public class RoomService {
      * Secret code can be passed as null if it doesn't require for room
      * If room or role not found then {@link NotFoundException} will be thrown
      *
-     * @param user domain to user domain
-     * @param roomId room identifier
-     * @param roleId role identifier
+     * @param user       domain to user domain
+     * @param roomId     room identifier
+     * @param roleId     role identifier
      * @param secretCode secret code
      * @return room domain in which user was joined
      */
@@ -147,10 +154,14 @@ public class RoomService {
                 .filter(it -> it.getId() == roleId)
                 .findFirst()
                 .orElseThrow(NotFoundException::new);
-        RoomSecret roomSecret = roomSecretRepository.findById(roomId).orElse(null);
-        if (roomSecret != null && !roomSecret.getSecretCode().equals(secretCode)) {
-            throw new WrongSecretCodeException();
-        }
+        roomSecretRepository.findById(roomId)
+                .map(RoomSecret::getSecretCode)
+                .ifPresent(roomSecret -> {
+                            if (!roomSecret.equals(secretCode)) {
+                                throw new WrongSecretCodeException();
+                            }
+                        }
+                );
         return joinRoom(user, room, role);
     }
 
@@ -178,7 +189,7 @@ public class RoomService {
     /**
      * Leave room by user
      *
-     * @param user user domain
+     * @param user   user domain
      * @param roomId room identifier
      */
     public void leaveRoom(User user, long roomId) {
@@ -199,19 +210,22 @@ public class RoomService {
     /**
      * Vote user in room with passed score
      *
-     * @param user user domain
+     * @param user   user domain
      * @param roomId room identifier
-     * @param score user score
+     * @param score  user score
      */
     @Transactional
     public void vote(User user, long roomId, String score) {
         var room = roomRepository.findById(roomId).orElseThrow(NotFoundException::new);
-        ParticipantId participantId = ParticipantId.builder()
+        var participantId = ParticipantId.builder()
                 .user(user)
                 .room(room)
                 .build();
-        var participant = participantRepository.findByParticipantId(participantId).orElseThrow(NotAllowedException::new);
-        if(!participant.getParticipantId().getRoom().isVoting()) {
+        var participant = participantRepository.findByParticipantId(participantId)
+                .orElseThrow(NotAllowedException::new);
+        participantId = participant.getParticipantId();
+        room = participantId.getRoom();
+        if (!room.isVoting()) {
             throw new NotAllowedException();
         }
         participant.setScore(HtmlUtils.htmlEscape(score));
@@ -224,19 +238,21 @@ public class RoomService {
      * {@link NotAllowedException} will be thrown if called not by room's author.
      * Also reset all participants scores.
      *
-     * @param user user domain (author)
+     * @param user   user domain (author)
      * @param roomId room identifier
      * @param voting new state is voting in progress or not
      * @return new room state
      */
     @Transactional
     public Room setVoting(User user, long roomId, boolean voting) {
-        var room = roomRepository.findById(roomId).orElseThrow(NotFoundException::new);
-        if(room.getAuthor().getId() != user.getId()) {
+        var room = roomRepository.findById(roomId)
+                .orElseThrow(NotFoundException::new);
+        var author = room.getAuthor();
+        if (author.getId() != user.getId()) {
             throw new NotAllowedException();
         }
         room.setVoting(voting);
-        if(voting) {
+        if (voting) {
             participantRepository.resetScore(room);
         }
         return roomRepository.save(room);
@@ -254,6 +270,7 @@ public class RoomService {
 
     /**
      * Get all available roles
+     *
      * @return list of roles
      */
     public List<Role> getRoles() {
@@ -261,10 +278,10 @@ public class RoomService {
     }
 
     /**
-     * Method for getting fact of secret code existing for sepcific room
+     * Method for getting fact of secret code existing for specific room
      *
      * @param roomId room identifier
-     * @return true - secretCode existsm false otherwise
+     * @return true - secretCode exists false otherwise
      */
     public boolean hasSecret(long roomId) {
         return roomSecretRepository.existsById(roomId);
@@ -279,7 +296,7 @@ public class RoomService {
      * @return room secret code
      */
     public String getSecret(User user, Room room) {
-        if(room.getAuthor().getId() != user.getId()) {
+        if (room.getAuthor().getId() != user.getId()) {
             return null;
         }
         return roomSecretRepository.findById(room.getId())

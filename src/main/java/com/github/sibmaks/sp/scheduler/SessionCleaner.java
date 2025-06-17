@@ -25,9 +25,9 @@ public class SessionCleaner {
      */
     @Scheduled(fixedDelay = 1000L * 60 * 60 * 2, initialDelay = 10000)
     public void cleanUp() {
-        long start = System.currentTimeMillis();
+        var start = System.currentTimeMillis();
         log.debug("Start session cleanup");
-        int items = clientSessionRepository.deleteExpired();
+        var items = clientSessionRepository.deleteExpired();
         log.debug("Session cleanup finished: {} items for {}ms", items, (System.currentTimeMillis() - start));
     }
 }

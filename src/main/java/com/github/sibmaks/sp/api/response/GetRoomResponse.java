@@ -28,11 +28,11 @@ public class GetRoomResponse extends StandardResponse {
     private final RoomInfo roomInfo;
 
     public GetRoomResponse(User user, Room room, List<Participant> participants) {
-        List<GroupInfo> groupInfos = participants.stream()
+        var groupInfos = participants.stream()
                 .collect(Collectors.groupingBy(Participant::getRole, Collectors.toList()))
                 .entrySet().stream()
                 .map(it -> buildGroupInfo(it, room.isVoting()))
-                .collect(Collectors.toList());
+                .toList();
 
         var participant = participants.stream()
                 .filter(it -> it.getParticipantId().getUser().getId() == user.getId())
@@ -53,7 +53,7 @@ public class GetRoomResponse extends StandardResponse {
         var groupInfo = new GroupInfo();
         groupInfo.setName(entry.getKey().getName());
         groupInfo.setParticipantInfos(new ArrayList<>());
-        for (Participant participant : entry.getValue()) {
+        for (var participant : entry.getValue()) {
             var user = participant.getParticipantId().getUser();
             var participantInfo = ParticipantInfo.builder()
                     .id(user.getId())

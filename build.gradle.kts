@@ -1,7 +1,7 @@
 plugins {
-	id("org.springframework.boot") version "3.3.3"
+	id("org.springframework.boot") version "3.5.0"
 	id("maven-publish")
-	id("io.spring.dependency-management") version "1.1.6"
+	id("io.spring.dependency-management") version "1.1.7"
 	id("java")
 	id("application")
 	id("org.sonarqube") version "5.1.0.4882"

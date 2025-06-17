@@ -64,8 +64,8 @@ class RestControllerExceptionHandlerTest {
         assertEquals(1, validationErrors.size());
 
         var validationError = validationErrors.getFirst();
-        assertEquals("fieldName", validationError.getField());
-        assertEquals("Error message", validationError.getMessage());
+        assertEquals("fieldName", validationError.field());
+        assertEquals("Error message", validationError.message());
     }
 
     @Test
@@ -78,8 +78,8 @@ class RestControllerExceptionHandlerTest {
         assertEquals(1, validationErrors.size());
 
         var validationError = validationErrors.getFirst();
-        assertEquals("fieldName", validationError.getField());
-        assertEquals("error message", validationError.getMessage());
+        assertEquals("fieldName", validationError.field());
+        assertEquals("error message", validationError.message());
     }
 
     @Test

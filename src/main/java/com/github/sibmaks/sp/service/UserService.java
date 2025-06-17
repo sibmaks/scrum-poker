@@ -32,17 +32,16 @@ public class UserService {
      * Return session identifier on success.
      * If user not found or password is wrong then NotFound result code will be returned
      *
-     * @param login user login
+     * @param login    user login
      * @param password user password
      * @return session identifier
      */
     public String login(String login, String password) {
         var user = userRepository.findByLogin(login.toLowerCase(Locale.ROOT));
-        if(user == null) {
+        if (user == null) {
             throw new NotFoundException();
         }
-
-        if(BCrypt.checkpw(password,user.getPassword())) {
+        if (BCrypt.checkpw(password, user.getPassword())) {
             return sessionService.createSession(user);
         } else {
             log.warn("Wrong password for user {}", login);
@@ -54,17 +53,17 @@ public class UserService {
      * Create user with passed data.
      * If user with the same login is already exists then {@link LoginIsBusyException} will be thrown
      *
-     * @param login user login
-     * @param password user password
+     * @param login     user login
+     * @param password  user password
      * @param firstName user first name
-     * @param lastName user last name
+     * @param lastName  user last name
      * @return session identifier
      */
     @Transactional
     public String createUser(String login, String password, String firstName, String lastName) {
         login = login.toLowerCase(Locale.ROOT);
 
-        if(userRepository.existsByLogin(login)) {
+        if (userRepository.existsByLogin(login)) {
             throw new LoginIsBusyException();
         }
 
@@ -94,22 +93,22 @@ public class UserService {
     /**
      * Update user data.
      *
-     * @param user user domain
+     * @param user      user domain
      * @param firstName new user first name
-     * @param lastName new user last name
+     * @param lastName  new user last name
      * @return is something changed or not
      */
     public boolean update(User user, String firstName, String lastName) {
-        boolean changed = false;
-        if(firstName != null && !firstName.equals(user.getFirstName())) {
+        var changed = false;
+        if (firstName != null && !firstName.equals(user.getFirstName())) {
             user.setFirstName(HtmlUtils.htmlEscape(firstName));
             changed = true;
         }
-        if(lastName != null && !lastName.equals(user.getLastName())) {
+        if (lastName != null && !lastName.equals(user.getLastName())) {
             user.setLastName(HtmlUtils.htmlEscape(lastName));
             changed = true;
         }
-        if(changed) {
+        if (changed) {
             userRepository.save(user);
         }
         return changed;
@@ -118,13 +117,14 @@ public class UserService {
     /**
      * Update user password.
      *
-     * @param user user domain
+     * @param user     user domain
      * @param password new user password
      */
     public void changePassword(User user, String password) {
-        if(password != null && !password.isEmpty() && !BCrypt.checkpw(password, user.getPassword())) {
-            user.setPassword(BCrypt.hashpw(password, BCrypt.gensalt()));
-            userRepository.save(user);
+        if (password == null || password.isEmpty() || BCrypt.checkpw(password, user.getPassword())) {
+            return;
         }
+        user.setPassword(BCrypt.hashpw(password, BCrypt.gensalt()));
+        userRepository.save(user);
     }
 }

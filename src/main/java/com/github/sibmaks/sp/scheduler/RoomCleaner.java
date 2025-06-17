@@ -25,9 +25,9 @@ public class RoomCleaner {
      */
     @Scheduled(fixedDelay = 1000L * 60 * 60 * 2, initialDelay = 10000)
     public void cleanUp() {
-        long start = System.currentTimeMillis();
+        var start = System.currentTimeMillis();
         log.debug("Start rooms cleanup");
-        int items = roomRepository.deleteExpired();
+        var items = roomRepository.deleteExpired();
         log.debug("Rooms cleanup finished: {} items for {}ms", items, (System.currentTimeMillis() - start));
     }
 }

@@ -1,8 +1,5 @@
 package com.github.sibmaks.sp.api.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
 import java.io.Serializable;
 
 /**
@@ -11,9 +8,5 @@ import java.io.Serializable;
  * @author sibmaks
  * Created at 26-12-2021
  */
-@Data
-@AllArgsConstructor
-public class ValidationError implements Serializable {
-    private final String field;
-    private final String message;
+public record ValidationError(String field, String message) implements Serializable {
 }

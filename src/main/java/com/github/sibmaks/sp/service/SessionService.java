@@ -36,9 +36,9 @@ public class SessionService {
      */
     @Transactional
     public String createSession(User user) {
-        Date createdAt = new Date();
+        var createdAt = new Date();
 
-        Date validTo = getValidToDate(createdAt);
+        var validTo = getValidToDate(createdAt);
 
         var clientSession = ClientSession.builder()
                 .sessionId(UUID.randomUUID().toString())

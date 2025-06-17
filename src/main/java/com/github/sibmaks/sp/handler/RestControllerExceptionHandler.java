@@ -11,9 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 /**
  * Exception handler for rest controllers.
  * Should return {@link StandardResponse} in Json format.
@@ -49,9 +46,9 @@ public class RestControllerExceptionHandler {
     @ResponseBody
     public ValidationErrorResponse onMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         log.warn(e.getMessage(), e);
-        List<ValidationError> validationErrors = e.getBindingResult().getFieldErrors().stream()
+        var validationErrors = e.getBindingResult().getFieldErrors().stream()
                 .map(it -> new ValidationError(it.getField(), it.getDefaultMessage()))
-                .collect(Collectors.toList());
+                .toList();
         return new ValidationErrorResponse(validationErrors);
     }
 

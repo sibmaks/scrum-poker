@@ -6,7 +6,6 @@ import com.github.sibmaks.sp.api.request.LoginRequest;
 import com.github.sibmaks.sp.api.request.RegistrationUserRequest;
 import com.github.sibmaks.sp.api.request.UpdateUserRequest;
 import com.github.sibmaks.sp.api.response.StandardResponse;
-import com.github.sibmaks.sp.domain.ClientSession;
 import com.github.sibmaks.sp.domain.User;
 import com.github.sibmaks.sp.exception.NotFoundException;
 import com.github.sibmaks.sp.exception.UnauthorizedException;
@@ -39,10 +38,10 @@ public class UserController {
      * Session id will be saved in http header: X-Session-Id.
      * After successful execution, empty response will be returned.
      *
-     * @param request API request DTO {@link LoginRequest}
+     * @param request  API request DTO {@link LoginRequest}
      * @param response http servlet response
-     * @see StandardResponse
      * @return empty response or response with error description
+     * @see StandardResponse
      */
     @PostMapping(value = "login", consumes = MediaType.APPLICATION_JSON_VALUE)
     public StandardResponse login(@RequestBody @Validated LoginRequest request, HttpServletResponse response) {
@@ -56,8 +55,8 @@ public class UserController {
      * After successful execution, empty response will be returned.
      *
      * @param sessionId session identifier for logout
-     * @see StandardResponse
      * @return empty response or response with error description
+     * @see StandardResponse
      */
     @GetMapping(value = "logout")
     public StandardResponse logout(@RequestHeader(CommonConstant.HEADER_SESSION_ID) String sessionId) {
@@ -70,10 +69,10 @@ public class UserController {
      * Session id will be saved in http header: X-Session-Id.
      * After successful execution, empty response will be returned.
      *
-     * @param request API request DTO {@link RegistrationUserRequest}
+     * @param request  API request DTO {@link RegistrationUserRequest}
      * @param response http servlet response
-     * @see StandardResponse
      * @return empty response or response with error description
+     * @see StandardResponse
      */
     @PostMapping(value = "registration")
     @Transactional
@@ -91,9 +90,9 @@ public class UserController {
      * After successful execution empty response will be returned.
      *
      * @param sessionId session identifier for logout
-     * @param request API request DTO {@link UpdateUserRequest}
-     * @see StandardResponse
+     * @param request   API request DTO {@link UpdateUserRequest}
      * @return empty response or response with error description
+     * @see StandardResponse
      */
     @PostMapping(value = "update")
     @Transactional
@@ -110,14 +109,14 @@ public class UserController {
      * After successful execution, empty response will be returned.
      *
      * @param sessionId session identifier for logout
-     * @param request API request DTO {@link ChangePasswordRequest}
-     * @see StandardResponse
+     * @param request   API request DTO {@link ChangePasswordRequest}
      * @return empty response or response with error description
+     * @see StandardResponse
      */
     @PostMapping(value = "changePassword")
     @Transactional
     public StandardResponse changePassword(@RequestHeader(CommonConstant.HEADER_SESSION_ID) String sessionId,
-                                   @RequestBody @Validated ChangePasswordRequest request) {
+                                           @RequestBody @Validated ChangePasswordRequest request) {
         var user = getUserOrUnauthorized(sessionId);
         userService.changePassword(user, request.getPassword());
         return new StandardResponse();
@@ -132,7 +131,7 @@ public class UserController {
      */
     private User getUserOrUnauthorized(String sessionId) {
         try {
-            ClientSession session = sessionService.getSession(sessionId);
+            var session = sessionService.getSession(sessionId);
             return userService.getUser(session.getUserId());
         } catch (NotFoundException e) {
             throw new UnauthorizedException();

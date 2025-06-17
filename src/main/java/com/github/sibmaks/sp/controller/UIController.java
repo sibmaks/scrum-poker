@@ -17,8 +17,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import java.util.stream.Collectors;
-
 import static com.github.sibmaks.sp.api.constant.CommonConstant.REDIRECT_TO_ROOT;
 
 /**
@@ -97,7 +95,7 @@ public class UIController {
         var user = getUserOrUnauthorized(sessionId);
         var rooms = roomService.getRooms(user.getId()).stream()
                 .map(it -> new RoomInfoDto(it, roomService.getParticipantCount(it)))
-                .collect(Collectors.toList());
+                .toList();
         model.addAttribute("rooms", rooms);
         return "rooms";
     }

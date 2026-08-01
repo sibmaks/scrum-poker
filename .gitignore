@@ -54,6 +54,7 @@ build/
 
 ### Docker composes ###
 docker-compose-*.yml
+!docker-compose-h2.yml
 
 ### OS X ###
 bin/

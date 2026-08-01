@@ -1,0 +1,12 @@
+.git
+.github
+.gradle
+.codex-security-scan
+.idea
+.vscode
+build
+*.iml
+*.log
+.env
+.env.*
+docker-compose*.yml

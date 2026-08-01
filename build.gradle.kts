@@ -1,5 +1,5 @@
 plugins {
-	id("org.springframework.boot") version "3.5.0"
+	id("org.springframework.boot") version "3.5.14"
 	id("maven-publish")
 	id("io.spring.dependency-management") version "1.1.7"
 	id("java")
@@ -7,6 +7,13 @@ plugins {
 	id("org.sonarqube") version "5.1.0.4882"
 	id("jacoco")
 }
+
+// Security patch overrides until the next Spring Boot 3.5.x release manages them.
+extra["jackson-bom.version"] = "2.21.4"
+extra["postgresql.version"] = "42.7.12"
+extra["spring-data-bom.version"] = "2025.0.12"
+extra["spring-framework.version"] = "6.2.19"
+extra["tomcat.version"] = "10.1.55"
 
 val versionFromProperty = "${project.property("version")}"
 val versionFromEnv: String? = System.getenv("VERSION")
@@ -51,6 +58,7 @@ dependencies {
 
 	implementation("org.flywaydb:flyway-core")
 	implementation("org.flywaydb:flyway-database-postgresql")
+	runtimeOnly("com.h2database:h2")
 	runtimeOnly("org.postgresql:postgresql")
 
 	compileOnly("jakarta.servlet:jakarta.servlet-api")

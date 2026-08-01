@@ -58,6 +58,26 @@ To run project you should determine environments (for DB at least) or use proper
 
 Use command `./buid/install/sp-boot/bin/sp` to launch the application.
 
+### Run with H2
+
+For local development the application can use an in-memory H2 database:
+
+```shell
+./gradlew bootRun --args='--spring.profiles.active=h2'
+```
+
+The application is available at `http://localhost:8080`. The H2 console is available at
+`http://localhost:8080/h2-console` with JDBC URL
+`jdbc:h2:mem:scrum_poker;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;NON_KEYWORDS=USER;DB_CLOSE_DELAY=-1`,
+user `sa`, and an empty password. Data is discarded when the application stops.
+
+To run the H2 configuration in Docker, start its Compose file. The application is built in an isolated
+Docker build stage, while the final image contains only the JRE and the application distribution:
+
+```shell
+docker compose -f docker-compose-h2.yml up --build
+```
+
 ## Dockerization
 Service must be ready to be dockerized.
 
